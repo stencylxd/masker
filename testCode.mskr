@@ -1,0 +1,5 @@
+print "Hello Masker!"
+xprint "This is a xprint!"
+xprint " This is another xprint!"
+// This is a comment, it shouldn't be executed!
+var playerName "Mike Stevens"
