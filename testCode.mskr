@@ -1,3 +1,4 @@
+chk start
 print "Hello Masker!"
 xprint "This is a xprint!"
 xprint " This is another xprint!"

@@ -13,7 +13,10 @@ namespace Masker
 
         public static string[] variableNames = new string[] { };
         public static string[] variableValues = new string[] { };
-        public static int currentLineNumber = 0;
+        public static float currentLineNumber = 0;
+        public static float[] jumpLineNumbers = new float[] { };
+        public static string[] jumpCheckpointNames = new string[] { };
+        public static string currentLine;
 
         public static void Main(string[] args)
         {
@@ -22,14 +25,23 @@ namespace Masker
                 string codeFilePath = args[0];
                 if (!File.Exists(codeFilePath)) abort("Masker: File does not exist.", false);
                 Clear();
-                using (StreamReader codeFile = File.OpenText(codeFilePath))
+                StreamReader codeFile = File.OpenText(codeFilePath);
+                while ((currentLine = codeFile.ReadLine()) != null)
                 {
-                    string currentLine;
-                    while ((currentLine = codeFile.ReadLine()) != null)
+                    currentLineNumber++;
+                    if (currentLine.Substring(0, 3).ToLower() == "chk")
                     {
-                        currentLineNumber++;
-                        processCommand(currentLine);
+                        jumpLineNumbers.Push(currentLineNumber);
+                        jumpCheckpointNames.Push(currentLine.Substring(4, currentLine.Length - 4)); // problem with pushing to array
+                        WriteLine("VARVAR" + jumpCheckpointNames.GetUpperBound(0));
                     }
+                }
+                currentLineNumber = 0;
+                codeFile = File.OpenText(codeFilePath);
+                while ((currentLine = codeFile.ReadLine()) != null)
+                {
+                    currentLineNumber++;
+                    processCommand(currentLine);
                 }
             } else
             {
