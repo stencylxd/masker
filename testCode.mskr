@@ -1,6 +1,9 @@
-chk start
+cp start
+
+print ""
 print "Hello Masker!"
 xprint "This is a xprint!"
-xprint " This is another xprint!"
+print ""
+xprint "This is another xprint, but with a newline beforehand!"
 // This is a comment, it shouldn't be executed!
-var playerName "Mike Stevens"
+jump start
