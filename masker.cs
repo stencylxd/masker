@@ -75,6 +75,9 @@ namespace Masker
 
         public static void processCommand(string command)
         {
+            if (command == )
+            // Null entry handler
+            if ()
             // Code Comments <//>
             if (command.Substring(0, 2) == "//") return;
 
@@ -148,16 +151,13 @@ namespace Masker
                 return;
             }
 
-            // cp handler
+            // CP handler
             if (command.Substring(0, 3).ToLower() == "cp ") return;
 
-            // jump handler
-            if (command.Substring(0, 5).ToLower() == "jump ") return;
-
-            // invalid command handler
+            // Invalid command handler
             if (command.Trim()[0].ToString() != "") abort($"Invalid command! (Line Number: {currentLineNumber}, Value: [{command}])");
 
-            // null entry will handle itself
+            // Empty string will handle itself
         }
 
         public static string getValueOfVariable(string variableName)

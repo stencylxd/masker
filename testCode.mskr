@@ -1,9 +1,3 @@
-cp start
+// Cool Program!
 
-print ""
 print "Hello Masker!"
-xprint "This is a xprint!"
-print ""
-xprint "This is another xprint, but with a newline beforehand!"
-// This is a comment, it shouldn't be executed!
-jump start
