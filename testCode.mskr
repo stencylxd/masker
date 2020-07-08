@@ -1,3 +1,12 @@
-// Cool Program!
+print "hello welcome to your computer system made with masker by logan hunter"
 
-print "Hello Masker!"
+sleep 10
+
+clear
+
+print "enter a new pass code "
+
+var password ""
+
+input password
+

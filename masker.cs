@@ -18,7 +18,7 @@ namespace Masker
         public static float currentLineNumber = 0;
         public static List<float> jumpLineNumbers = new List<float> { };
         public static List<string> jumpCheckpointNames = new List<string> { };
-        public static string currentLine;
+        public static string currentLine = "NO_FILE_OPEN";
         public static float backupCurrentLineNumber;
         public static StreamReader codeFile;
         public static float numberToJumpTo;
@@ -26,73 +26,117 @@ namespace Masker
 
         public static void Main(string[] args)
         {
-            if (args.Length == 1)
+            try
             {
-                string codeFilePath = args[0];
-                if (!File.Exists(codeFilePath)) abort("Masker: File does not exist.", false);
-                codeFile = File.OpenText(codeFilePath);
-                Clear();
-                while ((currentLine = codeFile.ReadLine()) != null)
+                if (args.Length == 1)
                 {
-                    currentLineNumber++;
-                    if (currentLine.Substring(0, 3).ToLower() == "cp ")
+                    string codeFilePath = args[0];
+                    if (!File.Exists(codeFilePath)) abort("Masker: File does not exist.", false);
+                    codeFile = File.OpenText(codeFilePath);
+                    Clear();
+                    while ((currentLine = codeFile.ReadLine()) != null)
                     {
-                        string checkpointName = currentLine.Substring(3).Split(' ')[0];
-                        if (jumpCheckpointNames.Contains(checkpointName)) abort($"Checkpoint already exists at line number " +
-                            $"{jumpLineNumbers[jumpCheckpointNames.IndexOf(checkpointName)]} " +
-                            $"(Line Number: {currentLineNumber}, Value: [{checkpointName}])");
-                        jumpLineNumbers.Add(currentLineNumber);
-                        jumpCheckpointNames.Add(currentLine.Substring(3).Split(' ')[0]); 
-                    }
-                }
-                codeFile.Close();
-                currentLineNumber = 0;
-                codeFile = File.OpenText(codeFilePath);
-                while ((currentLine = codeFile.ReadLine()) != null)
-                {
-                    currentLineNumber++;
-                    if (currentLine.Substring(0, 5).ToLower() == "jump ")
-                    {;
-                        codeFile.Close();
-                        codeFile = File.OpenText(codeFilePath);
-                        jumpNameToLookFor = currentLine.Substring(5).Trim().Split(' ')[0];
-                        numberToJumpTo = jumpLineNumbers[jumpCheckpointNames.IndexOf(jumpNameToLookFor)];
-                        if (!jumpCheckpointNames.Contains(jumpNameToLookFor)) abort($"Checkpoint doesn't exist! " +
-                            $"(Line Number: {currentLineNumber}, Value: [{jumpNameToLookFor}])");
-                        currentLineNumber = 0;
-                        while (currentLineNumber != (numberToJumpTo))
+                        currentLineNumber++;
+                        // Null handler
+                        if (IsNullOrEmpty(currentLine.Trim())) continue;
+                        if (currentLine.Substring(0, 3).ToLower() == "cp ")
                         {
-                            currentLineNumber++;
+                            string checkpointName = currentLine.Substring(3).Split(' ')[0];
+                            if (jumpCheckpointNames.Contains(checkpointName)) abort($"Checkpoint already exists at line number " +
+                                $"{jumpLineNumbers[jumpCheckpointNames.IndexOf(checkpointName)]} " +
+                                $"(Line Number: {currentLineNumber}, Value: [{checkpointName}])");
+                            jumpLineNumbers.Add(currentLineNumber);
+                            jumpCheckpointNames.Add(currentLine.Substring(3).Split(' ')[0]);
                         }
                     }
-                    processCommand(currentLine);
+                    codeFile.Close();
+                    currentLineNumber = 0;
+                    codeFile = File.OpenText(codeFilePath);
+                    while ((currentLine = codeFile.ReadLine()) != null)
+                    {
+                        currentLineNumber++;
+                        // Null handler
+                        if (IsNullOrEmpty(currentLine.Trim())) continue;
+                        if (currentLine.Substring(0, 5).ToLower() == "jump ")
+                        {
+                            ;
+                            codeFile.Close();
+                            codeFile = File.OpenText(codeFilePath);
+                            jumpNameToLookFor = currentLine.Substring(5).Trim().Split(' ')[0];
+                            numberToJumpTo = jumpLineNumbers[jumpCheckpointNames.IndexOf(jumpNameToLookFor)];
+                            if (!jumpCheckpointNames.Contains(jumpNameToLookFor)) abort($"Checkpoint doesn't exist! " +
+                                $"(Line Number: {currentLineNumber}, Value: [{jumpNameToLookFor}])");
+                            currentLineNumber = 0;
+                            while (currentLineNumber != (numberToJumpTo))
+                            {
+                                currentLineNumber++;
+                                currentLine = codeFile.ReadLine();
+                            }
+                        }
+                        processCommand(currentLine);
+                    }
                 }
-            } else
+                else
+                {
+                    abort("Masker: Please provide a file to run. (arguments)", false);
+                }
+            }
+            catch (Exception err)
             {
-                abort("Masker: Please provide a file to run. (arguments)", false);
+                if (err is IOException) abort("Something changed about the running codefile! (Caught: System.IOException)");
+                if (err is PathTooLongException) abort("Please enter a shorter file path. (Caught: PathTooLongException");
+                if (err is NotSupportedException) abort("The file you gave cannot be read by Masker. (Caught: NotSupportedException)");
+                if (err is UnauthorizedAccessException) abort("Masker does not have permission to read this file. (Caught: UnauthorizedAccessException)");
+                WriteLine(err.StackTrace + "\n");
+                abort($"Sorry, but Masker ran into an error. Please make a issue on Github, and provide this message and the stack trace shown above. (Line Number: [{currentLineNumber}], Value: [{currentLine}]");
             }
         }
 
         public static void processCommand(string command)
         {
-            if (command == )
-            // Null entry handler
-            if ()
+            command = command.Trim();
+
             // Code Comments <//>
             if (command.Substring(0, 2) == "//") return;
 
-            // PRINT call (print to screen with newline) [print "<STRING>"]
-            if (command.Substring(0, 6).ToLower() == "print ")
+            // PRINT call (print to screen with newline) [print <STRING>] || [print <VARIABLE>
+            if (command.Substring(0, 5).ToLower() == "print")
             {
-                string stringToPrint = command.Substring(6).Trim().removeStringAbort();
+                string stringToPrint;
+
+                if (command == "print")
+                {
+                    WriteLine();
+                    return;
+                }
+
+                if (command.Substring(6)[0] == '"') stringToPrint = command.Substring(6).Trim().removeStringAbort();
+                else
+                {
+                    stringToPrint = getValueOfVariable(command.Substring(6).Trim());
+                }
+
                 WriteLine(stringToPrint);
                 return;
             }
 
-            // XPRINT call (print to screen without newline) [xprint "<STRING>"]
-            if (command.Substring(0, 7).ToLower() == "xprint ")
+            // XPRINT call (print to screen without newline) [xprint <STRING>] || [xprint <VARIABLE>]
+            if (command.Substring(0, 6).ToLower() == "xprint")
             {
-                string stringToPrint = command.Substring(6).Trim().removeStringAbort();
+                string stringToPrint; 
+
+                if (command == "xprint")
+                {
+                    warn($"Useless xprint. (Line Number: {currentLineNumber})");
+                    return;
+                }
+
+                if (command.Substring(7)[0] == '"') stringToPrint = command.Substring(7).Trim().removeStringAbort();
+                else
+                {
+                    stringToPrint = getValueOfVariable(command.Substring(7).Trim());
+                }
+
                 Write(stringToPrint);
                 return;
             }
@@ -114,7 +158,7 @@ namespace Masker
                 return;
             }
 
-            // SET call (set value of existing variable)
+            // SET call (set value of existing variable) [set <VARIABLE> <VALUE>]
             if (command.Substring(0, 4).ToLower() == "set ")
             {
                 string[] actualStatement = command.Substring(0, 4).Trim().Split(' ');
@@ -124,28 +168,28 @@ namespace Masker
                 return;
             }
 
-            // INP call (getting input)
-            if (command.Substring(0, 4).ToLower() == "inp ")
+            // INP call (getting input) [inp <VARIABLE>]
+            if (command.Substring(0, 6).ToLower() == "input ")
             {
-                string variableName = command.Substring(4).Trim();
+                string variableName = command.Substring(6).Trim();
                 string userInput = ReadLine();
                 setValueOfVariable(variableName, userInput);
                 return;
             }
 
-            // INPX call (getting input that is lowercased)
-            if (command.Substring(0, 5).ToLower() == "inpx ")
+            // INPX call (getting input that is lowercased) [inpx <VARIABLE>]
+            if (command.Substring(0, 7).ToLower() == "inputx ")
             {
-                string variableName = command.Substring(5).Trim();
+                string variableName = command.Substring(7).Trim();
                 string userInput = ReadLine().ToLower();
                 setValueOfVariable(variableName, userInput);
                 return;
             }
 
-            // INPXX call (getting input that is uppercased)
-            if (command.Substring(0, 6).ToLower() == "inpxx ")
+            // INPXX call (getting input that is uppercased) [inpxx <VARIABLE>]
+            if (command.Substring(0, 8).ToLower() == "inputxx ")
             {
-                string variableName = command.Substring(6).Trim();
+                string variableName = command.Substring(8).Trim();
                 string userInput = ReadLine().ToUpper();
                 setValueOfVariable(variableName, userInput);
                 return;
@@ -157,7 +201,6 @@ namespace Masker
             // Invalid command handler
             if (command.Trim()[0].ToString() != "") abort($"Invalid command! (Line Number: {currentLineNumber}, Value: [{command}])");
 
-            // Empty string will handle itself
         }
 
         public static string getValueOfVariable(string variableName)
@@ -199,19 +242,27 @@ namespace Masker
             }
         }
 
-        public static void abort(string errMessage, bool processError = true)
+        public static void abort(string errMessage, bool error = true, int exitCode = 0)
         {
-            if (processError)
+            if (error)
             {
-                ForegroundColor = ConsoleColor.Red;
-                Write("\n\nPROCESS ERROR: ");
+                ForegroundColor = ConsoleColor.DarkRed;
+                Write("\n\nERROR: ");
                 ForegroundColor = ConsoleColor.White;
-                Write(errMessage);
+                WriteLine(errMessage);
             } else
             {
                 WriteLine("\n" + errMessage);
             }
-            Environment.Exit(0);
+            Environment.Exit(exitCode);
+        }
+
+        public static void warn(string warningMessage)
+        {
+            ForegroundColor = ConsoleColor.Red;
+            Write("\n\nWARNING: ");
+            ForegroundColor = ConsoleColor.White;
+            WriteLine(warningMessage);
         }
 
         public static string removeStringAbort(this string stringToCheck)
