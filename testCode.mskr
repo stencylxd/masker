@@ -1,12 +1,5 @@
-print "hello welcome to your computer system made with masker by logan hunter"
 
-sleep 10
-
-clear
-
-print "enter a new pass code "
-
-var password ""
-
-input password
-
+var playerName
+print playerName
+set playerName "Leo Is Cool"
+print playerName

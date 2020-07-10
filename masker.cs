@@ -7,6 +7,7 @@ using System.Threading;
 using System.IO;
 using System.Collections.Generic;
 using static System.String;
+using System.Diagnostics;
 
 namespace Masker
 {
@@ -87,8 +88,9 @@ namespace Masker
                 if (err is PathTooLongException) abort("Please enter a shorter file path. (Caught: PathTooLongException");
                 if (err is NotSupportedException) abort("The file you gave cannot be read by Masker. (Caught: NotSupportedException)");
                 if (err is UnauthorizedAccessException) abort("Masker does not have permission to read this file. (Caught: UnauthorizedAccessException)");
-                WriteLine(err.StackTrace + "\n");
-                abort($"Sorry, but Masker ran into an error. Please make a issue on Github, and provide this message and the stack trace shown above. (Line Number: [{currentLineNumber}], Value: [{currentLine}]");
+                WriteLine(err.Message + "\n" + err.StackTrace);
+                abort($"Sorry, but Masker ran into an error. Please make a issue on the Github repository, provide this message with the text shown above. " +
+                    $"(Line Number: [{currentLineNumber}], Current Line In File: [{currentLine}])");
             }
         }
 
@@ -99,12 +101,48 @@ namespace Masker
             // Code Comments <//>
             if (command.Substring(0, 2) == "//") return;
 
+            // CP handler
+            if (command.Substring(0, 3).ToLower() == "cp ") return;
+
+            // VAR call (defining a variable)
+            if (command.Substring(0, 3).ToLower() == "var")
+            {
+                if (command.ToLower() == "var") abort($"VAR must be given atleast 1 argument! (Line Number: {currentLineNumber})");
+                string actualDefine = command.Substring(4) + " ";
+                int indexOfSpace = actualDefine.IndexOf(" ");
+                string variableName = actualDefine.Substring(0, indexOfSpace);
+                string variableValue = actualDefine.Substring(indexOfSpace);
+                if (IsNullOrEmpty(variableValue.Trim())) variableValue = "NULL";
+                else variableValue = variableValue.removeStringAbort();
+                if (!variableExists(variableName))
+                {
+                    newVariable(variableName, variableValue);
+                }
+                else
+                {
+                    abort($"Variable already exists. (Line Number: {currentLineNumber}, Variable Name: [{variableName}])");
+                }
+                return;
+            }
+
+            // SET call (set value of existing variable) [set <VARIABLE> <VALUE>]
+            if (command.Substring(0, 3).ToLower() == "set")
+            {
+                if (command.ToLower() == "set") abort($"SET must be given 2 arguments! (Line Number: {currentLineNumber})");
+                string actualStatement = command.Substring(0, 4).Trim();
+                int indexOfSpace = actualStatement.IndexOf(" ");
+                string variableName = actualStatement.Substring(0, indexOfSpace).Trim();
+                string variableValue = actualStatement.Substring(indexOfSpace).Trim().removeStringAbort();
+                setValueOfVariable(variableName, variableValue);
+                return;
+            }
+
             // PRINT call (print to screen with newline) [print <STRING>] || [print <VARIABLE>
             if (command.Substring(0, 5).ToLower() == "print")
             {
                 string stringToPrint;
 
-                if (command == "print")
+                if (command.ToLower() == "print")
                 {
                     WriteLine();
                     return;
@@ -120,12 +158,21 @@ namespace Masker
                 return;
             }
 
+            // INP call (getting input) [inp <VARIABLE>]
+            if (command.Substring(0, 6).ToLower() == "input ")
+            {
+                string variableName = command.Substring(6).Trim();
+                string userInput = ReadLine();
+                setValueOfVariable(variableName, userInput);
+                return;
+            }
+
             // XPRINT call (print to screen without newline) [xprint <STRING>] || [xprint <VARIABLE>]
             if (command.Substring(0, 6).ToLower() == "xprint")
             {
-                string stringToPrint; 
+                string stringToPrint;
 
-                if (command == "xprint")
+                if (command.ToLower() == "xprint")
                 {
                     warn($"Useless xprint. (Line Number: {currentLineNumber})");
                     return;
@@ -138,42 +185,6 @@ namespace Masker
                 }
 
                 Write(stringToPrint);
-                return;
-            }
-
-            // VAR call (defining a variable)
-            if (command.Substring(0, 4).ToLower() == "var ")
-            {
-                string actualDefine = command.Substring(4).Trim();
-                int indexOfSpace = actualDefine.IndexOf(" ");
-                string variableValue = actualDefine.Substring(indexOfSpace + 1).removeStringAbort();
-                string variableName = actualDefine.Substring(0, indexOfSpace);
-                if (!variableExists(variableName))
-                {
-                    newVariable(variableName, variableValue);
-                } else
-                {
-                    abort($"Variable already exists. (Line Number: {currentLineNumber}, Variable Name: [{variableName}])");
-                }
-                return;
-            }
-
-            // SET call (set value of existing variable) [set <VARIABLE> <VALUE>]
-            if (command.Substring(0, 4).ToLower() == "set ")
-            {
-                string[] actualStatement = command.Substring(0, 4).Trim().Split(' ');
-                string variableName = actualStatement[0];
-                string variableValue = actualStatement[1].removeStringAbort();
-                setValueOfVariable(variableName, variableValue);
-                return;
-            }
-
-            // INP call (getting input) [inp <VARIABLE>]
-            if (command.Substring(0, 6).ToLower() == "input ")
-            {
-                string variableName = command.Substring(6).Trim();
-                string userInput = ReadLine();
-                setValueOfVariable(variableName, userInput);
                 return;
             }
 
@@ -194,9 +205,6 @@ namespace Masker
                 setValueOfVariable(variableName, userInput);
                 return;
             }
-
-            // CP handler
-            if (command.Substring(0, 3).ToLower() == "cp ") return;
 
             // Invalid command handler
             if (command.Trim()[0].ToString() != "") abort($"Invalid command! (Line Number: {currentLineNumber}, Value: [{command}])");
@@ -233,8 +241,8 @@ namespace Masker
         {
             if (!variableExists(variableName))
             {
-                variableNames.Add(variableName);
-                variableValues.Add(variableValue);
+                variableNames.Add(variableName.Trim());
+                variableValues.Add(variableValue.Trim());
                 return 1;
             } else
             {
