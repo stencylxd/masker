@@ -1,5 +1,8 @@
 
-var playerName
-print playerName
-set playerName "Leo Is Cool"
-print playerName
+var message "You are my sunshine! My only sunshine! You make me happy, when skies are grey!"
+
+cp start
+
+print message
+
+jump start

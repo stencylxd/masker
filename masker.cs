@@ -107,13 +107,13 @@ namespace Masker
             // VAR call (defining a variable)
             if (command.Substring(0, 3).ToLower() == "var")
             {
-                if (command.ToLower() == "var") abort($"VAR must be given atleast 1 argument! (Line Number: {currentLineNumber})");
+                if (command.ToLower() == "var") abort($"VAR must be given at least 1 argument! (Line Number: {currentLineNumber})");
                 string actualDefine = command.Substring(4) + " ";
                 int indexOfSpace = actualDefine.IndexOf(" ");
                 string variableName = actualDefine.Substring(0, indexOfSpace);
                 string variableValue = actualDefine.Substring(indexOfSpace);
                 if (IsNullOrEmpty(variableValue.Trim())) variableValue = "NULL";
-                else variableValue = variableValue.removeStringAbort();
+                else variableValue = variableValue.Trim().removeStringAbort();
                 if (!variableExists(variableName))
                 {
                     newVariable(variableName, variableValue);
