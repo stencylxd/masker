@@ -1,21 +1,14 @@
 
-// This is a small input output program, by Leo in Masker.
-var playerName ""
+// Simple program to test Masker
 
-print "Please enter a name:"
-input playerName
+var message
 
-clear
+xprint "Enter your message: "
+input message
 
-print "Your name is:"
-sleep 2
-print playerName
-sleep 3
-clear
 
-set playerName "HAHAHAHAHAAAA"
 cp start
 
-print playerName
+xprint message
 
-jump start
+goto start

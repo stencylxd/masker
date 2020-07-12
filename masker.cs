@@ -1,13 +1,12 @@
 
 using System;
 using static System.Console;
-using static System.Array;
 using System.Linq;
 using System.Threading;
 using System.IO;
 using System.Collections.Generic;
 using static System.String;
-using System.Diagnostics;
+using static System.ConsoleColor;
 
 namespace Masker
 {
@@ -68,7 +67,7 @@ namespace Masker
                         // CP handler
                         if (currentLine.Substring(0, 3).ToLower() == "cp ") continue;
 
-                        // MKVAR call (defining a variable) [var <VARIABLE> !<VALUE>]
+                        // VAR call (defining a variable) [var <VARIABLE> !"<VALUE>"]
                         if (currentLine.Substring(0, 3).ToLower() == "var")
                         {
                             if (currentLine.ToLower() == "var") abort($"VAR must be given atleast 1 argument! (Line Number: {currentLineNumber})");
@@ -83,11 +82,11 @@ namespace Masker
                             continue;
                         }
 
-                        // SET call (set value of existing variable) [set <VARIABLE> <VALUE>]
+                        // SET call (set value of existing variable) [set <VARIABLE> "<VALUE>"]
                         if (currentLine.Substring(0, 3).ToLower() == "set")
                         {
                             if (currentLine.ToLower() == "set") abort($"SET must be given 2 arguments! (Line Number: {currentLineNumber})");
-                            string actualStatement = currentLine.Substring(0, 4).Trim();
+                            string actualStatement = currentLine.Substring(4).Trim();
                             int indexOfSpace = actualStatement.IndexOf(" ");
                             string variableName = actualStatement.Substring(0, indexOfSpace).Trim();
                             string variableValue = actualStatement.Substring(indexOfSpace).removeStringAbort();
@@ -98,10 +97,10 @@ namespace Masker
                         // EXIT call (exit program) [exit]
                         if (currentLine.ToLower() == "exit") Environment.Exit(0);
 
-                        // JUMP call (jump to checkpoint) [jump <CHECKPOINT>]
-                        if (currentLine.Substring(0, 4).ToLower() == "jump")
+                        // GOTO call (jump to checkpoint) [GOTO <CHECKPOINT>]
+                        if (currentLine.Substring(0, 4).ToLower() == "goto")
                         {
-                            if (currentLine.Trim().ToLower() == "jump") abort($"JUMP must be passed 1 argument! (Line Number: {currentLineNumber})");
+                            if (currentLine.Trim().ToLower() == "goto") abort($"goto must be passed 1 argument! (Line Number: {currentLineNumber})");
                             codeFile.Close();
                             codeFile = File.OpenText(codeFilePath);
                             jumpNameToLookFor = currentLine.Substring(5).Trim().Split(' ')[0];
@@ -132,6 +131,30 @@ namespace Masker
                             continue;
                         }
 
+                        // COLOR call (change color of text) [color <color name>]
+                        if (currentLine.Substring(0, 5).ToLower() == "color")
+                        {
+                            if (currentLine.Trim().ToLower() == "color") abort($"COLOR must be passed 1 argument! (Line Number: {currentLineNumber})");
+                            string colorName = currentLine.Substring(5).Trim().ToLower(); 
+                            if (colorName == "blue") ForegroundColor = Blue;
+                            if (colorName == "red") ForegroundColor = Red;
+                            if (colorName == "magenta") ForegroundColor = Magenta;
+                            if (colorName == "yellow") ForegroundColor = Yellow;
+                            if (colorName == "cyan") ForegroundColor = Cyan;
+                            if (colorName == "grey") ForegroundColor = Gray;
+                            if (colorName == "green") ForegroundColor = Green;
+                            if (colorName == "darkred") ForegroundColor = DarkRed;
+                            if (colorName == "darkblue") ForegroundColor = DarkBlue;
+                            if (colorName == "darkgreen") ForegroundColor = DarkGreen;
+                            if (colorName == "darkyellow") ForegroundColor = DarkYellow;
+                            if (colorName == "darkgrey") ForegroundColor = DarkGray;
+                            if (colorName == "darkcyan") ForegroundColor = DarkCyan;
+                            if (colorName == "darkmegenta") ForegroundColor = DarkMagenta;
+                            if (colorName == "black") ForegroundColor = Black;
+                            if (colorName == "white") ForegroundColor = White;
+                            continue;
+                        }
+
                         // SLEEPX call (sleep program for provided amount of milliseconds) [sleepx <milliseconds>]
                         if (currentLine.Substring(0, 6).ToLower() == "sleepx")
                         {
@@ -140,7 +163,14 @@ namespace Masker
                             continue;
                         }
 
-                        // PRINT call (print to screen with newline) [print <STRING>] || [print <VARIABLE>
+                        // JUMPIF call (conditional jump) [jumpif <variable> "<value>" <checkpoint>]
+                        if (currentLine.Substring(0, 6).ToLower() == "jumpif")
+                        {
+                            if (currentLine.ToLower() == "jumpif") abort($"JUMPIF must be passed 3 arguments! (Line Number: {currentLineNumber})");
+                            continue;
+                        }
+
+                        // PRINT call (print to screen with newline) [print "<STRING>"] || [print <VARIABLE>]
                         if (currentLine.Substring(0, 5).ToLower() == "print")
                         {
                             string stringToPrint;
@@ -167,7 +197,7 @@ namespace Masker
                             continue;
                         }
 
-                        // XPRINT call (print to screen without newline) [xprint <STRING>] || [xprint <VARIABLE>]
+                        // XPRINT call (print to screen without newline) [xprint "<STRING>"] || [xprint <VARIABLE>]
                         if (currentLine.Substring(0, 6).ToLower() == "xprint")
                         {
                             string stringToPrint;
@@ -221,7 +251,7 @@ namespace Masker
                 if (err is NotSupportedException) abort("The file you gave cannot be read by Masker. (Caught: NotSupportedException)");
                 if (err is UnauthorizedAccessException) abort("Masker does not have permission to read this file. (Caught: UnauthorizedAccessException)");
                 Write($"{err.StackTrace}\n\n");
-                abort($"Sorry, but Masker ran into an error. Please make a issue on the Github repository, provide this message with the text shown above. " +
+                abort($"Sorry, but Masker ran into an error. If your code looks completely fine, please make a issue on the Github repository. Provide this message along with the text shown above. " +
                     $"(Line Number: [{currentLineNumber}], Current Line In File: [{currentLine}])");
             }
         }
@@ -271,9 +301,9 @@ namespace Masker
         {
             if (error)
             {
-                ForegroundColor = ConsoleColor.DarkRed;
+                ForegroundColor = DarkRed;
                 Write("\n\nERROR: ");
-                ForegroundColor = ConsoleColor.White;
+                ForegroundColor = White;
                 WriteLine(errMessage);
             }
             else
@@ -285,9 +315,9 @@ namespace Masker
 
         public static void warn(string warningMessage)
         {
-            ForegroundColor = ConsoleColor.Red;
+            ForegroundColor = Red;
             Write("\n\nWARNING: ");
-            ForegroundColor = ConsoleColor.White;
+            ForegroundColor = White;
             WriteLine(warningMessage);
         }
 
