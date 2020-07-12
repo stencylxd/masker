@@ -40,8 +40,9 @@ namespace Masker
                         currentLineNumber++;
                         // Null handler
                         if (IsNullOrEmpty(currentLine.Trim())) continue;
-                        if (currentLine.Substring(0, 3).ToLower() == "cp ")
+                        if (currentLine.Substring(0, 2).ToLower() == "cp")
                         {
+                            if (currentLine.Trim().ToLower() == "cp") abort($"CP must be passed 1 argument! (Line Number: {currentLineNumber})");
                             string checkpointName = currentLine.Substring(3).Split(' ')[0];
                             if (jumpCheckpointNames.Contains(checkpointName)) abort($"Checkpoint already exists at line number " +
                                 $"{jumpLineNumbers[jumpCheckpointNames.IndexOf(checkpointName)]} " +
@@ -58,9 +59,49 @@ namespace Masker
                         currentLineNumber++;
                         // Null handler
                         if (IsNullOrEmpty(currentLine.Trim())) continue;
-                        if (currentLine.Substring(0, 5).ToLower() == "jump ")
+
+                        currentLine = currentLine.Trim();
+
+                        // Code Comments <//>
+                        if (currentLine.Substring(0, 2) == "//") continue;
+
+                        // CP handler
+                        if (currentLine.Substring(0, 3).ToLower() == "cp ") continue;
+
+                        // MKVAR call (defining a variable) [var <VARIABLE> !<VALUE>]
+                        if (currentLine.Substring(0, 3).ToLower() == "var")
                         {
-                            ;
+                            if (currentLine.ToLower() == "var") abort($"VAR must be given atleast 1 argument! (Line Number: {currentLineNumber})");
+                            string actualDefine = currentLine.Substring(4) + " ";
+                            int indexOfSpace = actualDefine.IndexOf(" ");
+                            string variableName = actualDefine.Substring(0, indexOfSpace);
+                            string variableValue = actualDefine.Substring(indexOfSpace);
+                            if (IsNullOrEmpty(variableValue.Trim())) variableValue = "NULL";
+                            else variableValue = variableValue.removeStringAbort();
+                            if (!variableExists(variableName)) newVariable(variableName, variableValue);
+                            else abort($"Variable already exists. (Line Number: {currentLineNumber}, Variable Name: [{variableName}])");
+                            continue;
+                        }
+
+                        // SET call (set value of existing variable) [set <VARIABLE> <VALUE>]
+                        if (currentLine.Substring(0, 3).ToLower() == "set")
+                        {
+                            if (currentLine.ToLower() == "set") abort($"SET must be given 2 arguments! (Line Number: {currentLineNumber})");
+                            string actualStatement = currentLine.Substring(0, 4).Trim();
+                            int indexOfSpace = actualStatement.IndexOf(" ");
+                            string variableName = actualStatement.Substring(0, indexOfSpace).Trim();
+                            string variableValue = actualStatement.Substring(indexOfSpace).removeStringAbort();
+                            setValueOfVariable(variableName, variableValue);
+                            continue;
+                        }
+
+                        // EXIT call (exit program) [exit]
+                        if (currentLine.ToLower() == "exit") Environment.Exit(0);
+
+                        // JUMP call (jump to checkpoint) [jump <CHECKPOINT>]
+                        if (currentLine.Substring(0, 4).ToLower() == "jump")
+                        {
+                            if (currentLine.Trim().ToLower() == "jump") abort($"JUMP must be passed 1 argument! (Line Number: {currentLineNumber})");
                             codeFile.Close();
                             codeFile = File.OpenText(codeFilePath);
                             jumpNameToLookFor = currentLine.Substring(5).Trim().Split(' ')[0];
@@ -73,8 +114,99 @@ namespace Masker
                                 currentLineNumber++;
                                 currentLine = codeFile.ReadLine();
                             }
+                            continue;
                         }
-                        processCommand(currentLine);
+
+                        // CLEAR call (clear command line interface) [clear]
+                        if (currentLine.ToLower() == "clear")
+                        {
+                            Clear();
+                            continue;
+                        }
+
+                        // SLEEP call (sleep program for provided amount of seconds) [sleep <seconds>]
+                        if (currentLine.Substring(0, 5).ToLower() == "sleep")
+                        {
+                            int actualNumber = Convert.ToInt32(currentLine.Substring(5).Trim()) * 1000;
+                            Thread.Sleep(actualNumber);
+                            continue;
+                        }
+
+                        // SLEEPX call (sleep program for provided amount of milliseconds) [sleepx <milliseconds>]
+                        if (currentLine.Substring(0, 6).ToLower() == "sleepx")
+                        {
+                            int actualNumber = Convert.ToInt32(currentLine.Substring(6).Trim());
+                            Thread.Sleep(actualNumber);
+                            continue;
+                        }
+
+                        // PRINT call (print to screen with newline) [print <STRING>] || [print <VARIABLE>
+                        if (currentLine.Substring(0, 5).ToLower() == "print")
+                        {
+                            string stringToPrint;
+
+                            if (currentLine.ToLower() == "print")
+                            {
+                                WriteLine();
+                                continue;
+                            }
+
+                            if (currentLine.Substring(6)[0] == '"') stringToPrint = currentLine.Substring(6).Trim().removeStringAbort();
+                            else stringToPrint = getValueOfVariable(currentLine.Substring(6).Trim());
+                            WriteLine(stringToPrint);
+                            continue;
+                        }
+
+                        // INPUT call (getting input) [input <VARIABLE>]
+                        if (currentLine.Substring(0, 5).ToLower() == "input")
+                        {
+                            if (currentLine.ToLower() == "input") abort($"INPUT must be passed 1 argument! (Line Number: {currentLineNumber})");
+                            string variableName = currentLine.Substring(6).Trim();
+                            string userInput = ReadLine();
+                            setValueOfVariable(variableName, userInput);
+                            continue;
+                        }
+
+                        // XPRINT call (print to screen without newline) [xprint <STRING>] || [xprint <VARIABLE>]
+                        if (currentLine.Substring(0, 6).ToLower() == "xprint")
+                        {
+                            string stringToPrint;
+
+                            if (currentLine.ToLower() == "xprint")
+                            {
+                                warn($"Useless xprint. (Line Number: {currentLineNumber})");
+                                continue;
+                            }
+
+                            if (currentLine.Substring(7)[0] == '"') stringToPrint = currentLine.Substring(7).Trim().removeStringAbort();
+                            else stringToPrint = getValueOfVariable(currentLine.Substring(7).Trim());
+                            Write(stringToPrint);
+                            continue;
+                        }
+
+                        // INPUTX call (getting input that is lowercased) [inputx <VARIABLE>]
+                        if (currentLine.Substring(0, 6).ToLower() == "inputx")
+                        {
+                            if (currentLine.ToLower() == "inputx") abort($"INPUTX must be passed 1 argument! (Line Number: {currentLineNumber})");
+                            string variableName = currentLine.Substring(7).Trim();
+                            string userInput = ReadLine().ToLower();
+                            setValueOfVariable(variableName, userInput);
+                            continue;
+                        }
+
+                        // INPUTXX call (getting input that is uppercased) [inputxx <VARIABLE>]
+                        if (currentLine.Substring(0, 7).ToLower() == "inputxx")
+                        {
+                            if (currentLine.ToLower() == "inputxx") abort($"INPUTXX must be passed 1 argument! (Line Number: {currentLineNumber})");
+                            string variableName = currentLine.Substring(8).Trim();
+                            string userInput = ReadLine().ToUpper();
+                            setValueOfVariable(variableName, userInput);
+                            continue;
+                        }
+
+                        // Invalid command handler
+                        if (currentLine.Trim()[0].ToString() != "") abort($"Invalid command! (Line Number: {currentLineNumber}, Value: [{currentLine}])");
+
                     }
                 }
                 else
@@ -88,127 +220,10 @@ namespace Masker
                 if (err is PathTooLongException) abort("Please enter a shorter file path. (Caught: PathTooLongException");
                 if (err is NotSupportedException) abort("The file you gave cannot be read by Masker. (Caught: NotSupportedException)");
                 if (err is UnauthorizedAccessException) abort("Masker does not have permission to read this file. (Caught: UnauthorizedAccessException)");
-                WriteLine(err.Message + "\n" + err.StackTrace);
+                Write($"{err.StackTrace}\n\n");
                 abort($"Sorry, but Masker ran into an error. Please make a issue on the Github repository, provide this message with the text shown above. " +
                     $"(Line Number: [{currentLineNumber}], Current Line In File: [{currentLine}])");
             }
-        }
-
-        public static void processCommand(string command)
-        {
-            command = command.Trim();
-
-            // Code Comments <//>
-            if (command.Substring(0, 2) == "//") return;
-
-            // CP handler
-            if (command.Substring(0, 3).ToLower() == "cp ") return;
-
-            // VAR call (defining a variable)
-            if (command.Substring(0, 3).ToLower() == "var")
-            {
-                if (command.ToLower() == "var") abort($"VAR must be given atleast 1 argument! (Line Number: {currentLineNumber})");
-                string actualDefine = command.Substring(4) + " ";
-                int indexOfSpace = actualDefine.IndexOf(" ");
-                string variableName = actualDefine.Substring(0, indexOfSpace);
-                string variableValue = actualDefine.Substring(indexOfSpace);
-                if (IsNullOrEmpty(variableValue.Trim())) variableValue = "NULL";
-                else variableValue = variableValue.removeStringAbort();
-                if (!variableExists(variableName))
-                {
-                    newVariable(variableName, variableValue);
-                }
-                else
-                {
-                    abort($"Variable already exists. (Line Number: {currentLineNumber}, Variable Name: [{variableName}])");
-                }
-                return;
-            }
-
-            // SET call (set value of existing variable) [set <VARIABLE> <VALUE>]
-            if (command.Substring(0, 3).ToLower() == "set")
-            {
-                if (command.ToLower() == "set") abort($"SET must be given 2 arguments! (Line Number: {currentLineNumber})");
-                string actualStatement = command.Substring(0, 4).Trim();
-                int indexOfSpace = actualStatement.IndexOf(" ");
-                string variableName = actualStatement.Substring(0, indexOfSpace).Trim();
-                string variableValue = actualStatement.Substring(indexOfSpace).Trim().removeStringAbort();
-                setValueOfVariable(variableName, variableValue);
-                return;
-            }
-
-            // PRINT call (print to screen with newline) [print <STRING>] || [print <VARIABLE>
-            if (command.Substring(0, 5).ToLower() == "print")
-            {
-                string stringToPrint;
-
-                if (command.ToLower() == "print")
-                {
-                    WriteLine();
-                    return;
-                }
-
-                if (command.Substring(6)[0] == '"') stringToPrint = command.Substring(6).Trim().removeStringAbort();
-                else
-                {
-                    stringToPrint = getValueOfVariable(command.Substring(6).Trim());
-                }
-
-                WriteLine(stringToPrint);
-                return;
-            }
-
-            // INP call (getting input) [inp <VARIABLE>]
-            if (command.Substring(0, 6).ToLower() == "input ")
-            {
-                string variableName = command.Substring(6).Trim();
-                string userInput = ReadLine();
-                setValueOfVariable(variableName, userInput);
-                return;
-            }
-
-            // XPRINT call (print to screen without newline) [xprint <STRING>] || [xprint <VARIABLE>]
-            if (command.Substring(0, 6).ToLower() == "xprint")
-            {
-                string stringToPrint;
-
-                if (command.ToLower() == "xprint")
-                {
-                    warn($"Useless xprint. (Line Number: {currentLineNumber})");
-                    return;
-                }
-
-                if (command.Substring(7)[0] == '"') stringToPrint = command.Substring(7).Trim().removeStringAbort();
-                else
-                {
-                    stringToPrint = getValueOfVariable(command.Substring(7).Trim());
-                }
-
-                Write(stringToPrint);
-                return;
-            }
-
-            // INPX call (getting input that is lowercased) [inpx <VARIABLE>]
-            if (command.Substring(0, 7).ToLower() == "inputx ")
-            {
-                string variableName = command.Substring(7).Trim();
-                string userInput = ReadLine().ToLower();
-                setValueOfVariable(variableName, userInput);
-                return;
-            }
-
-            // INPXX call (getting input that is uppercased) [inpxx <VARIABLE>]
-            if (command.Substring(0, 8).ToLower() == "inputxx ")
-            {
-                string variableName = command.Substring(8).Trim();
-                string userInput = ReadLine().ToUpper();
-                setValueOfVariable(variableName, userInput);
-                return;
-            }
-
-            // Invalid command handler
-            if (command.Trim()[0].ToString() != "") abort($"Invalid command! (Line Number: {currentLineNumber}, Value: [{command}])");
-
         }
 
         public static string getValueOfVariable(string variableName)
@@ -231,7 +246,8 @@ namespace Masker
             if (variableNames.Contains(variableName))
             {
                 return true;
-            } else
+            }
+            else
             {
                 return false;
             }
@@ -244,7 +260,8 @@ namespace Masker
                 variableNames.Add(variableName.Trim());
                 variableValues.Add(variableValue.Trim());
                 return 1;
-            } else
+            }
+            else
             {
                 return 0;
             }
@@ -258,7 +275,8 @@ namespace Masker
                 Write("\n\nERROR: ");
                 ForegroundColor = ConsoleColor.White;
                 WriteLine(errMessage);
-            } else
+            }
+            else
             {
                 WriteLine("\n" + errMessage);
             }
@@ -275,10 +293,13 @@ namespace Masker
 
         public static string removeStringAbort(this string stringToCheck)
         {
+            stringToCheck = stringToCheck.Trim();
             if (stringToCheck[0] == '"' && stringToCheck[stringToCheck.Length - 1] == '"')
             {
                 return stringToCheck.Substring(1, stringToCheck.Length - 2);
-            } else {
+            }
+            else
+            {
                 abort($"String value does not have quotation marks. (Line Number: {currentLineNumber}, Value: [{stringToCheck}])");
                 return "Fatal Error!";
             }

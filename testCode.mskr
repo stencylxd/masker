@@ -1,5 +1,21 @@
 
-var playerName
+// This is a small input output program, by Leo in Masker.
+var playerName ""
+
+print "Please enter a name:"
+input playerName
+
+clear
+
+print "Your name is:"
+sleep 2
 print playerName
-set playerName "Leo Is Cool"
+sleep 3
+clear
+
+set playerName "HAHAHAHAHAAAA"
+cp start
+
 print playerName
+
+jump start
