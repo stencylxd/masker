@@ -97,16 +97,17 @@ namespace Masker
                         // EXIT call (exit program) [exit]
                         if (currentLine.ToLower() == "exit") Environment.Exit(0);
 
-                        // GOTO call (jump to checkpoint) [GOTO <CHECKPOINT>]
-                        if (currentLine.Substring(0, 4).ToLower() == "goto")
+                        // GOTO call (jump to checkpoint) [GOTO <CHECKPOINT>] 
+                        // This line of code is here so goto doesn't override gotoif.
+                        if (currentLine.Trim().ToLower() == "goto") abort($"GOTO must be passed 1 argument! (Line Number: {currentLineNumber})"); 
+                        if (currentLine.Substring(0, 5).ToLower() == "goto ")
                         {
-                            if (currentLine.Trim().ToLower() == "goto") abort($"goto must be passed 1 argument! (Line Number: {currentLineNumber})");
                             codeFile.Close();
                             codeFile = File.OpenText(codeFilePath);
                             jumpNameToLookFor = currentLine.Substring(5).Trim().Split(' ')[0];
-                            numberToJumpTo = jumpLineNumbers[jumpCheckpointNames.IndexOf(jumpNameToLookFor)];
                             if (!jumpCheckpointNames.Contains(jumpNameToLookFor)) abort($"Checkpoint doesn't exist! " +
                                 $"(Line Number: {currentLineNumber}, Value: [{jumpNameToLookFor}])");
+                            numberToJumpTo = jumpLineNumbers[jumpCheckpointNames.IndexOf(jumpNameToLookFor)];
                             currentLineNumber = 0;
                             while (currentLineNumber != (numberToJumpTo))
                             {
@@ -163,10 +164,30 @@ namespace Masker
                             continue;
                         }
 
-                        // JUMPIF call (conditional jump) [jumpif <variable> "<value>" <checkpoint>]
-                        if (currentLine.Substring(0, 6).ToLower() == "jumpif")
+                        // GOTOIF call (conditional jump) [gotoif <variable> "<value>" <checkpoint>]
+                        if (currentLine.Substring(0, 6).ToLower() == "gotoif")
                         {
-                            if (currentLine.ToLower() == "jumpif") abort($"JUMPIF must be passed 3 arguments! (Line Number: {currentLineNumber})");
+                            if (currentLine.ToLower() == "gotoif") abort($"GOTOIF must be passed 3 arguments! (Line Number: {currentLineNumber})");
+                            string arguments = currentLine.Substring(6).Trim();
+                            string variable = arguments.Substring(0, arguments.IndexOf(" ")).Trim();
+                            arguments = arguments.Substring(arguments.IndexOf(" ")).Trim();
+                            string value = arguments.Substring(0, arguments.IndexOf(" ")).removeStringAbort();
+                            string checkpointName = arguments.Substring(arguments.IndexOf(" ")).Trim();
+
+                            if (getValueOfVariable(variable) == value)
+                            {
+                                codeFile.Close();
+                                codeFile = File.OpenText(codeFilePath);
+                                if (!jumpCheckpointNames.Contains(checkpointName)) abort($"Checkpoint doesn't exist! " +
+                                    $"(Line Number: {currentLineNumber}, Value: [{checkpointName}])");
+                                float numberToJumpTo = jumpLineNumbers[jumpCheckpointNames.IndexOf(checkpointName)];
+                                currentLineNumber = 0;
+                                while (currentLineNumber != (numberToJumpTo))
+                                {
+                                    currentLineNumber++;
+                                    currentLine = codeFile.ReadLine();
+                                }
+                            }
                             continue;
                         }
 

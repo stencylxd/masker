@@ -11,4 +11,4 @@ cp start
 
 xprint message
 
-goto start
+gotoif message "Leo" start
