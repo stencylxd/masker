@@ -1,14 +1,14 @@
 
 // Simple program to test Masker
 
-var message
-
-xprint "Enter your message: "
-input message
-
-
+var enteredPassword
 cp start
-
-xprint message
-
-gotoif message "Leo" start
+xprint "Please enter your password: "
+input enteredPassword
+gotoif enteredPassword "maskeriscool" correct
+print ""
+print "Password incorrect!"
+goto start
+cp correct
+print ""
+print "Password correct! You get nothing. ):"
