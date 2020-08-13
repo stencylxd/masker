@@ -1,7 +1,6 @@
-
+﻿
 using System;
 using static System.Console;
-using System.Linq;
 using System.Threading;
 using System.IO;
 using System.Collections.Generic;
@@ -19,26 +18,32 @@ namespace Masker
         public static List<float> jumpLineNumbers = new List<float> { };
         public static List<string> jumpCheckpointNames = new List<string> { };
         public static string currentLine = "NO_FILE_OPEN";
-        public static float backupCurrentLineNumber;
+        public static float errorLineNumber;
         public static StreamReader codeFile;
         public static float numberToJumpTo;
         public static string jumpNameToLookFor;
+        public static string[] code = new string[] { };
 
         public static void Main(string[] args)
         {
             try
             {
-                if (args.Length == 1)
+                if (args.Length > 0)
                 {
                     string codeFilePath = args[0];
                     if (!File.Exists(codeFilePath)) abort("Masker: File does not exist.", false);
-                    codeFile = File.OpenText(codeFilePath);
+                    codeFile = new StreamReader(codeFilePath);
+                    code = codeFile.ReadToEnd().Split('\n');
                     Clear();
-                    while ((currentLine = codeFile.ReadLine()) != null)
+                    foreach (string line in code)
                     {
+                        currentLine = line.Trim();
                         currentLineNumber++;
-                        // Null handler
-                        if (IsNullOrEmpty(currentLine.Trim())) continue;
+                        errorLineNumber = currentLineNumber + 1;
+                        // Empty handler
+                        if (currentLine.Trim() == Empty) continue;
+                        // To handle substring length errors when statement less than 2 chars is processed
+                        if (currentLine.Length < 2) abort($"There are no statements less than 2 characters long! (Line Number: {currentLineNumber}, Value: {currentLine})");
                         if (currentLine.Substring(0, 2).ToLower() == "cp")
                         {
                             if (currentLine.Trim().ToLower() == "cp") abort($"CP must be passed 1 argument! (Line Number: {currentLineNumber})");
@@ -50,22 +55,24 @@ namespace Masker
                             jumpCheckpointNames.Add(currentLine.Substring(3).Split(' ')[0]);
                         }
                     }
-                    codeFile.Close();
-                    currentLineNumber = 0;
-                    codeFile = File.OpenText(codeFilePath);
-                    while ((currentLine = codeFile.ReadLine()) != null)
+                    currentLineNumber = -1;
+                    while (true)
                     {
                         currentLineNumber++;
-                        // Null handler
-                        if (IsNullOrEmpty(currentLine.Trim())) continue;
+                        errorLineNumber = currentLineNumber + 1;
+                        if (currentLineNumber > code.Length - 1) break;
+                        currentLine = code[(int)currentLineNumber].Trim();
 
-                        currentLine = currentLine.Trim();
+                        // Handlers for errors
 
+                        // Empty handler
+                        if (currentLine.Trim() == Empty) continue;
                         // Code Comments <//>
                         if (currentLine.Substring(0, 2) == "//") continue;
-
                         // CP handler
                         if (currentLine.Substring(0, 3).ToLower() == "cp ") continue;
+
+                        // Command processors
 
                         // VAR call (defining a variable) [var <VARIABLE> !"<VALUE>"]
                         if (currentLine.Substring(0, 3).ToLower() == "var")
@@ -99,21 +106,15 @@ namespace Masker
 
                         // GOTO call (jump to checkpoint) [GOTO <CHECKPOINT>] 
                         // This line of code is here so goto doesn't override gotoif.
-                        if (currentLine.Trim().ToLower() == "goto") abort($"GOTO must be passed 1 argument! (Line Number: {currentLineNumber})"); 
+                        if (currentLine.Trim().ToLower() == "goto") abort($"GOTO must be passed 1 argument! (Line Number: {currentLineNumber})");
                         if (currentLine.Substring(0, 5).ToLower() == "goto ")
                         {
-                            codeFile.Close();
-                            codeFile = File.OpenText(codeFilePath);
-                            jumpNameToLookFor = currentLine.Substring(5).Trim().Split(' ')[0];
-                            if (!jumpCheckpointNames.Contains(jumpNameToLookFor)) abort($"Checkpoint doesn't exist! " +
-                                $"(Line Number: {currentLineNumber}, Value: [{jumpNameToLookFor}])");
-                            numberToJumpTo = jumpLineNumbers[jumpCheckpointNames.IndexOf(jumpNameToLookFor)];
-                            currentLineNumber = 0;
-                            while (currentLineNumber != (numberToJumpTo))
-                            {
-                                currentLineNumber++;
-                                currentLine = codeFile.ReadLine();
-                            }
+                            string checkpointName = currentLine.Substring(5).Trim();
+                            if (!jumpCheckpointNames.Contains(checkpointName)) abort($"Checkpoint doesn't exist! " +
+                                    $"(Line Number: {currentLineNumber}, Value: [{checkpointName}])");
+                            float numberToJumpTo = jumpLineNumbers[jumpCheckpointNames.IndexOf(checkpointName)];
+                            currentLine = code[(int)numberToJumpTo - 1];
+                            currentLineNumber = numberToJumpTo - 1;
                             continue;
                         }
 
@@ -136,7 +137,7 @@ namespace Masker
                         if (currentLine.Substring(0, 5).ToLower() == "color")
                         {
                             if (currentLine.Trim().ToLower() == "color") abort($"COLOR must be passed 1 argument! (Line Number: {currentLineNumber})");
-                            string colorName = currentLine.Substring(5).Trim().ToLower(); 
+                            string colorName = currentLine.Substring(5).Trim().ToLower();
                             if (colorName == "blue") ForegroundColor = Blue;
                             if (colorName == "red") ForegroundColor = Red;
                             if (colorName == "magenta") ForegroundColor = Magenta;
@@ -156,38 +157,13 @@ namespace Masker
                             continue;
                         }
 
-                        // SLEEPX call (sleep program for provided amount of milliseconds) [sleepx <milliseconds>]
-                        if (currentLine.Substring(0, 6).ToLower() == "sleepx")
+                        // INPUT call (getting input) [input <VARIABLE>]
+                        if (currentLine.Substring(0, 5).ToLower() == "input")
                         {
-                            int actualNumber = Convert.ToInt32(currentLine.Substring(6).Trim());
-                            Thread.Sleep(actualNumber);
-                            continue;
-                        }
-
-                        // GOTOIF call (conditional jump) [gotoif <variable> "<value>" <checkpoint>]
-                        if (currentLine.Substring(0, 6).ToLower() == "gotoif")
-                        {
-                            if (currentLine.ToLower() == "gotoif") abort($"GOTOIF must be passed 3 arguments! (Line Number: {currentLineNumber})");
-                            string arguments = currentLine.Substring(6).Trim();
-                            string variable = arguments.Substring(0, arguments.IndexOf(" ")).Trim();
-                            arguments = arguments.Substring(arguments.IndexOf(" ")).Trim();
-                            string value = arguments.Substring(0, arguments.IndexOf(" ")).removeStringAbort();
-                            string checkpointName = arguments.Substring(arguments.IndexOf(" ")).Trim();
-
-                            if (getValueOfVariable(variable) == value)
-                            {
-                                codeFile.Close();
-                                codeFile = File.OpenText(codeFilePath);
-                                if (!jumpCheckpointNames.Contains(checkpointName)) abort($"Checkpoint doesn't exist! " +
-                                    $"(Line Number: {currentLineNumber}, Value: [{checkpointName}])");
-                                float numberToJumpTo = jumpLineNumbers[jumpCheckpointNames.IndexOf(checkpointName)];
-                                currentLineNumber = 0;
-                                while (currentLineNumber != (numberToJumpTo))
-                                {
-                                    currentLineNumber++;
-                                    currentLine = codeFile.ReadLine();
-                                }
-                            }
+                            if (currentLine.ToLower() == "input") abort($"INPUT must be passed 1 argument! (Line Number: {currentLineNumber})");
+                            string variableName = currentLine.Substring(6).Trim();
+                            string userInput = ReadLine();
+                            setValueOfVariable(variableName, userInput);
                             continue;
                         }
 
@@ -202,19 +178,11 @@ namespace Masker
                                 continue;
                             }
 
-                            if (currentLine.Substring(6)[0] == '"') stringToPrint = currentLine.Substring(6).Trim().removeStringAbort();
-                            else stringToPrint = getValueOfVariable(currentLine.Substring(6).Trim());
-                            WriteLine(stringToPrint);
-                            continue;
-                        }
+                            string value = currentLine.Substring(6).Trim();
 
-                        // INPUT call (getting input) [input <VARIABLE>]
-                        if (currentLine.Substring(0, 5).ToLower() == "input")
-                        {
-                            if (currentLine.ToLower() == "input") abort($"INPUT must be passed 1 argument! (Line Number: {currentLineNumber})");
-                            string variableName = currentLine.Substring(6).Trim();
-                            string userInput = ReadLine();
-                            setValueOfVariable(variableName, userInput);
+                            if (value.removeStringAbort(true) == "yes") stringToPrint = value.removeStringAbort();
+                            else stringToPrint = getValueOfVariable(value);
+                            WriteLine(stringToPrint);
                             continue;
                         }
 
@@ -225,38 +193,101 @@ namespace Masker
 
                             if (currentLine.ToLower() == "xprint")
                             {
-                                warn($"Useless xprint. (Line Number: {currentLineNumber})");
+                                warn($"Useless xprint. (Line Number: {errorLineNumber})");
                                 continue;
                             }
 
-                            if (currentLine.Substring(7)[0] == '"') stringToPrint = currentLine.Substring(7).Trim().removeStringAbort();
-                            else stringToPrint = getValueOfVariable(currentLine.Substring(7).Trim());
+                            string value = currentLine.Substring(6).Trim();
+
+                            if (value.removeStringAbort(true) == "yes") stringToPrint = value.removeStringAbort();
+                            else stringToPrint = getValueOfVariable(value);
                             Write(stringToPrint);
                             continue;
                         }
 
-                        // INPUTX call (getting input that is lowercased) [inputx <VARIABLE>]
-                        if (currentLine.Substring(0, 6).ToLower() == "inputx")
+                        // GOTOIF call (conditional jump) [gotoif <value> <value> <checkpoint>]
+                        if (currentLine.Substring(0, 6).ToLower() == "gotoif")
                         {
-                            if (currentLine.ToLower() == "inputx") abort($"INPUTX must be passed 1 argument! (Line Number: {currentLineNumber})");
+                            if (currentLine.ToLower() == "gotoif") abort($"GOTOIF must be passed 3 arguments! (Line Number: {currentLineNumber})");
+                            string arguments = currentLine.Substring(6).Trim();
+                            string value1 = arguments.Substring(0, arguments.IndexOf(" ")).Trim();
+                            arguments = arguments.Substring(arguments.IndexOf(" ")).Trim();
+                            string value2 = arguments.Substring(0, arguments.IndexOf(" "));
+                            string checkpointName = arguments.Substring(arguments.IndexOf(" ")).Trim();
+
+                            if (value1.removeStringAbort(true) != "no") value1 = value1.removeStringAbort();
+                            else value1 = getValueOfVariable(value1);
+                            if (value2.removeStringAbort(true) != "no") value2 = value2.removeStringAbort();
+                            else value2 = getValueOfVariable(value2);
+
+                            if (value1 == value2)
+                            {
+                                if (!jumpCheckpointNames.Contains(checkpointName)) abort($"Checkpoint doesn't exist! " +
+                                    $"(Line Number: {currentLineNumber}, Value: [{checkpointName}])");
+                                float numberToJumpTo = jumpLineNumbers[jumpCheckpointNames.IndexOf(checkpointName)];
+                                currentLine = code[(int)numberToJumpTo - 1];
+                                currentLineNumber = numberToJumpTo - 1;
+                            }
+                            continue;
+                        }
+
+                        // SLEEPX call (sleep program for provided amount of milliseconds) [sleepx <milliseconds>]
+                        if (currentLine.Substring(0, 6).ToLower() == "sleepx")
+                        {
+                            int actualNumber = Convert.ToInt32(currentLine.Substring(6).Trim());
+                            Thread.Sleep(actualNumber);
+                            continue;
+                        }
+
+                        // XINPUT call (getting input that is lowercased) [xinput <VARIABLE>]
+                        if (currentLine.Substring(0, 6).ToLower() == "xinput")
+                        {
+                            if (currentLine.ToLower() == "xinput") abort($"XINPUT must be passed 1 argument! (Line Number: {currentLineNumber})");
                             string variableName = currentLine.Substring(7).Trim();
                             string userInput = ReadLine().ToLower();
                             setValueOfVariable(variableName, userInput);
                             continue;
                         }
 
-                        // INPUTXX call (getting input that is uppercased) [inputxx <VARIABLE>]
-                        if (currentLine.Substring(0, 7).ToLower() == "inputxx")
+                        // XXINPUT call (getting input that is uppercased) [xxinput <VARIABLE>]
+                        if (currentLine.Substring(0, 7).ToLower() == "xxinput")
                         {
-                            if (currentLine.ToLower() == "inputxx") abort($"INPUTXX must be passed 1 argument! (Line Number: {currentLineNumber})");
+                            if (currentLine.ToLower() == "xxinput") abort($"XXINPUT must be passed 1 argument! (Line Number: {currentLineNumber})");
                             string variableName = currentLine.Substring(8).Trim();
                             string userInput = ReadLine().ToUpper();
                             setValueOfVariable(variableName, userInput);
                             continue;
                         }
 
+                        // DONTGOTOIF call (false conditional jump) [dontgotoif <value> <value> <checkpoint>]
+                        if (currentLine.Substring(0, 10).ToLower() == "dontgotoif")
+                        {
+                            if (currentLine.ToLower() == "dontgotoif") abort($"DONTGOTOIF must be passed 3 arguments! (Line Number: {currentLineNumber})");
+                            string arguments = currentLine.Substring(10).Trim();
+                            string value1 = arguments.Substring(0, arguments.IndexOf(" ")).Trim();
+                            arguments = arguments.Substring(arguments.IndexOf(" ")).Trim();
+                            string value2 = arguments.Substring(0, arguments.IndexOf(" "));
+                            string checkpointName = arguments.Substring(arguments.IndexOf(" ")).Trim();
+
+                            if (value1.removeStringAbort(true) != "no") value1 = value1.removeStringAbort();
+                            else value1 = getValueOfVariable(value1);
+                            if (value2.removeStringAbort(true) != "no") value2 = value2.removeStringAbort();
+                            else value2 = getValueOfVariable(value2);
+
+                            if (value1 != value2)
+                            {
+                                if (!jumpCheckpointNames.Contains(checkpointName)) abort($"Checkpoint doesn't exist! " +
+                                    $"(Line Number: {currentLineNumber}, Value: [{checkpointName}])");
+                                float numberToJumpTo = jumpLineNumbers[jumpCheckpointNames.IndexOf(checkpointName)];
+                                currentLine = code[(int)numberToJumpTo - 1];
+                                currentLineNumber = numberToJumpTo - 1;
+                            }
+                            continue;
+                        }
+
+
                         // Invalid command handler
-                        if (currentLine.Trim()[0].ToString() != "") abort($"Invalid command! (Line Number: {currentLineNumber}, Value: [{currentLine}])");
+                        if (currentLine[0].ToString() != "") abort($"Invalid command! (Line Number: {currentLineNumber}, Value: [{currentLine}])");
 
                     }
                 }
@@ -267,10 +298,11 @@ namespace Masker
             }
             catch (Exception err)
             {
-                if (err is IOException) abort("Something changed about the running codefile! (Caught: System.IOException)");
+                if (err is IOException) abort("Something changed about the running codefile! (Caught: IOException)");
                 if (err is PathTooLongException) abort("Please enter a shorter file path. (Caught: PathTooLongException");
                 if (err is NotSupportedException) abort("The file you gave cannot be read by Masker. (Caught: NotSupportedException)");
                 if (err is UnauthorizedAccessException) abort("Masker does not have permission to read this file. (Caught: UnauthorizedAccessException)");
+                WriteLine($"{err.Message}");
                 Write($"{err.StackTrace}\n\n");
                 abort($"Sorry, but Masker ran into an error. If your code looks completely fine, please make a issue on the Github repository. Provide this message along with the text shown above. " +
                     $"(Line Number: [{currentLineNumber}], Current Line In File: [{currentLine}])");
@@ -279,7 +311,7 @@ namespace Masker
 
         public static string getValueOfVariable(string variableName)
         {
-            if (!variableExists(variableName)) abort($"Variable does not exist. (Line Number: {currentLineNumber})");
+            if (!variableExists(variableName)) abort($"Variable does not exist. (Line Number: {currentLineNumber}, Value: {variableName})");
             int index = variableNames.IndexOf(variableName);
             string variableValue = variableValues[index];
             return variableValue;
@@ -287,7 +319,7 @@ namespace Masker
 
         public static void setValueOfVariable(string variableName, string newValue)
         {
-            if (!variableExists(variableName)) abort($"Variable does not exist. (Line Number: {currentLineNumber})");
+            if (!variableExists(variableName)) abort($"Variable does not exist. (Line Number: {currentLineNumber}, Value: {variableName})");
             int index = variableNames.IndexOf(variableName);
             variableValues[index] = newValue;
         }
@@ -324,7 +356,7 @@ namespace Masker
             {
                 ForegroundColor = DarkRed;
                 Write("\n\nERROR: ");
-                ForegroundColor = White;
+                ResetColor();
                 WriteLine(errMessage);
             }
             else
@@ -336,23 +368,28 @@ namespace Masker
 
         public static void warn(string warningMessage)
         {
+            ConsoleColor backupColor = ForegroundColor;
             ForegroundColor = Red;
             Write("\n\nWARNING: ");
-            ForegroundColor = White;
+            ResetColor();
             WriteLine(warningMessage);
+            ForegroundColor = backupColor;
         }
 
-        public static string removeStringAbort(this string stringToCheck)
+        public static string removeStringAbort(this string stringToCheck, bool justCheck = false)
         {
             stringToCheck = stringToCheck.Trim();
             if (stringToCheck[0] == '"' && stringToCheck[stringToCheck.Length - 1] == '"')
             {
-                return stringToCheck.Substring(1, stringToCheck.Length - 2);
+                // If it does have quotation marks:
+                if (!justCheck) return stringToCheck.Substring(1, stringToCheck.Length - 2);
+                return "yes";
             }
             else
             {
-                abort($"String value does not have quotation marks. (Line Number: {currentLineNumber}, Value: [{stringToCheck}])");
-                return "Fatal Error!";
+                // If it doesn't:
+                if (!justCheck) abort($"String value does not have quotation marks. (Line Number: {currentLineNumber}, Value: [{stringToCheck}])");
+                return "no";
             }
         }
     }
