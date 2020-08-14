@@ -1,18 +1,32 @@
 
 print "Hello! Please enter your password."
+
 var password "password1234"
+
 var user-input
+
 cp start
+
 color cyan
+
 xprint "Password: "
+
 color white
+
 input user-input
-dontgotoif user-input password normal
-color green
-print "Hello user!"
-color white
-exit
-cp normal
+
+gotoif user-input password correct
+
 color red
+
 print "Incorrect!"
+
 goto start
+
+cp correct
+
+color green
+
+print "Welcome, user!"
+
+color white
