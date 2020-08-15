@@ -43,19 +43,20 @@ namespace Masker
                         // Empty handler
                         if (currentLine.Trim() == Empty) continue;
                         // To handle substring length errors when statement less than 2 chars is processed
-                        if (currentLine.Length < 2) abort($"There are no statements less than 2 characters long! (Line Number: {currentLineNumber}, Value: {currentLine})");
+                        if (currentLine.Length < 2) abort($"There are no statements less than 2 characters long! (Line Number: {errorLineNumber}, Value: {currentLine})");
                         if (currentLine.Substring(0, 2).ToLower() == "cp")
                         {
-                            if (currentLine.Trim().ToLower() == "cp") abort($"CP must be passed 1 argument! (Line Number: {currentLineNumber})");
+                            if (currentLine.Trim().ToLower() == "cp") abort($"CP must be passed 1 argument! (Line Number: {errorLineNumber})");
                             string checkpointName = currentLine.Substring(3).Split(' ')[0];
                             if (jumpCheckpointNames.Contains(checkpointName)) abort($"Checkpoint already exists at line number " +
                                 $"{jumpLineNumbers[jumpCheckpointNames.IndexOf(checkpointName)]} " +
-                                $"(Line Number: {currentLineNumber}, Value: [{checkpointName}])");
+                                $"(Line Number: {errorLineNumber}, Value: [{checkpointName}])");
                             jumpLineNumbers.Add(currentLineNumber);
                             jumpCheckpointNames.Add(currentLine.Substring(3).Split(' ')[0]);
                         }
                     }
                     currentLineNumber = -1;
+                    bool firstSpace = false;
                     while (true)
                     {
                         currentLineNumber++;
@@ -66,7 +67,10 @@ namespace Masker
                         // Handlers for errors
 
                         // Empty handler
-                        if (currentLine.Trim() == Empty) continue;
+                        if (currentLine.Trim() == Empty) {
+                            if (!firstSpace) { firstSpace = true; currentLineNumber++; }
+                            continue;
+                        }
                         // Code Comments <//>
                         if (currentLine.Length == 2 && currentLine.Substring(0, 2) == "//") continue;
                         
@@ -76,7 +80,7 @@ namespace Masker
                         // Command processors
 
                         // VAR call (defining a variable) [var <VARIABLE> !"<VALUE>"]
-                        if (currentLine.ToLower() == "var") abort($"VAR must be given atleast 1 argument! (Line Number: {currentLineNumber})");
+                        if (currentLine.ToLower() == "var") abort($"VAR must be given atleast 1 argument! (Line Number: {errorLineNumber})");
                         if (currentLine.Length >= 4 && currentLine.Substring(0, 4).ToLower() == "var ")
                         { 
                             string actualDefine = currentLine.Substring(4) + " ";
@@ -86,12 +90,12 @@ namespace Masker
                             if (IsNullOrEmpty(variableValue.Trim())) variableValue = "NULL";
                             else variableValue = variableValue.removeStringAbort();
                             if (!variableExists(variableName)) newVariable(variableName, variableValue);
-                            else abort($"Variable already exists. (Line Number: {currentLineNumber}, Variable Name: [{variableName}])");
+                            else abort($"Variable already exists. (Line Number: {errorLineNumber}, Variable Name: [{variableName}])");
                             continue;
                         }
 
                         // SET call (set value of existing variable) [set <VARIABLE> "<VALUE>"]
-                        if (currentLine.ToLower() == "set") abort($"SET must be given 2 arguments! (Line Number: {currentLineNumber})");
+                        if (currentLine.ToLower() == "set") abort($"SET must be given 2 arguments! (Line Number: {errorLineNumber})");
                         if (currentLine.Length >= 4 && currentLine.Substring(0, 4).ToLower() == "set ")
                         {
                             string actualStatement = currentLine.Substring(4).Trim();
@@ -106,12 +110,12 @@ namespace Masker
                         if (currentLine.ToLower() == "exit") Environment.Exit(0);
 
                         // GOTO call (jump to checkpoint) [GOTO <CHECKPOINT>] 
-                        if (currentLine.Trim().ToLower() == "goto") abort($"GOTO must be passed 1 argument! (Line Number: {currentLineNumber})");
+                        if (currentLine.Trim().ToLower() == "goto") abort($"GOTO must be passed 1 argument! (Line Number: {errorLineNumber})");
                         if (currentLine.Length >= 5 && currentLine.Substring(0, 5).ToLower() == "goto ")
                         {
                             string checkpointName = currentLine.Substring(5).Trim();
                             if (!jumpCheckpointNames.Contains(checkpointName)) abort($"Checkpoint doesn't exist! " +
-                                    $"(Line Number: {currentLineNumber}, Value: [{checkpointName}])");
+                                    $"(Line Number: {errorLineNumber}, Value: [{checkpointName}])");
                             float numberToJumpTo = jumpLineNumbers[jumpCheckpointNames.IndexOf(checkpointName)];
                             currentLine = code[(int)numberToJumpTo - 1];
                             currentLineNumber = numberToJumpTo - 1;
@@ -126,7 +130,7 @@ namespace Masker
                         }
 
                         // SLEEP call (sleep program for provided amount of seconds) [sleep <seconds>]
-                        if (currentLine.ToLower() == "sleep") abort($"SLEEP must be given atleast 1 argument! (Line Number: {currentLineNumber})");
+                        if (currentLine.ToLower() == "sleep") abort($"SLEEP must be given atleast 1 argument! (Line Number: {errorLineNumber})");
                         if (currentLine.Length >= 6 && currentLine.Substring(0, 6).ToLower() == "sleep ")
                         {
                             int actualNumber = Convert.ToInt32(currentLine.Substring(5).Trim()) * 1000;
@@ -135,7 +139,7 @@ namespace Masker
                         }
 
                         // COLOR call (change color of text) [color <color name>]
-                        if (currentLine.Trim().ToLower() == "color") abort($"COLOR must be passed 1 argument! (Line Number: {currentLineNumber})");
+                        if (currentLine.Trim().ToLower() == "color") abort($"COLOR must be passed 1 argument! (Line Number: {errorLineNumber})");
                         if (currentLine.Length >= 6 && currentLine.Substring(0, 6).ToLower() == "color ")
                         {
                             string colorName = currentLine.Substring(5).Trim().ToLower();
@@ -159,7 +163,7 @@ namespace Masker
                         }
 
                         // INPUT call (getting input) [input <VARIABLE>]
-                        if (currentLine.ToLower() == "input") abort($"INPUT must be passed 1 argument! (Line Number: {currentLineNumber})");
+                        if (currentLine.ToLower() == "input") abort($"INPUT must be passed 1 argument! (Line Number: {errorLineNumber})");
                         if (currentLine.Length >= 6 && currentLine.Substring(0, 6).ToLower() == "input ")
                         {
                             string variableName = currentLine.Substring(6).Trim();
@@ -205,8 +209,8 @@ namespace Masker
                         }
 
                         // GOTOIF call (conditional jump) [gotoif <value> <value> <checkpoint>]
-                        if (currentLine.ToLower() == "gotoif") abort($"GOTOIF must be passed 3 arguments! (Line Number: {currentLineNumber})");
-                        if (currentLine.Substring(0, 6).ToLower() == "gotoif")
+                        if (currentLine.ToLower() == "gotoif") abort($"GOTOIF must be passed 3 arguments! (Line Number: {errorLineNumber})");
+                        if (currentLine.Length >= 7 && currentLine.Substring(0, 7).ToLower() == "gotoif ")
                         {
                             string arguments = currentLine.Substring(6).Trim();
                             string value1 = arguments.Substring(0, arguments.IndexOf(" ")).Trim();
@@ -222,7 +226,7 @@ namespace Masker
                             if (value1 == value2)
                             {
                                 if (!jumpCheckpointNames.Contains(checkpointName)) abort($"Checkpoint doesn't exist! " +
-                                    $"(Line Number: {currentLineNumber}, Value: [{checkpointName}])");
+                                    $"(Line Number: {errorLineNumber}, Value: [{checkpointName}])");
                                 float numberToJumpTo = jumpLineNumbers[jumpCheckpointNames.IndexOf(checkpointName)];
                                 currentLine = code[(int)numberToJumpTo - 1];
                                 currentLineNumber = numberToJumpTo - 1;
@@ -231,8 +235,8 @@ namespace Masker
                         }
 
                         // SLEEPX call (sleep program for provided amount of milliseconds) [sleepx <milliseconds>]
-                        if (currentLine.ToLower() == "sleepx") abort($"SLEEPX must be passed 1 arguments! (Line Number: {currentLineNumber})");
-                        if (currentLine.Substring(0, 7).ToLower() == "sleepx ")
+                        if (currentLine.ToLower() == "sleepx") abort($"SLEEPX must be passed 1 arguments! (Line Number: {errorLineNumber})");
+                        if (currentLine.Length >= 7 && currentLine.Substring(0, 7).ToLower() == "sleepx ")
                         {
                             int actualNumber = Convert.ToInt32(currentLine.Substring(6).Trim());
                             Thread.Sleep(actualNumber);
@@ -240,8 +244,8 @@ namespace Masker
                         }
 
                         // XINPUT call (getting input that is lowercased) [xinput <VARIABLE>]
-                        if (currentLine.ToLower() == "xinput") abort($"XINPUT must be passed 1 argument! (Line Number: {currentLineNumber})");
-                        if (currentLine.Substring(0, 7).ToLower() == "xinput ")
+                        if (currentLine.ToLower() == "xinput") abort($"XINPUT must be passed 1 argument! (Line Number: {errorLineNumber})");
+                        if (currentLine.Length >= 7 && currentLine.Substring(0, 7).ToLower() == "xinput ")
                         { 
                             string variableName = currentLine.Substring(7).Trim();
                             string userInput = ReadLine().ToLower();
@@ -250,8 +254,8 @@ namespace Masker
                         }
 
                         // XXINPUT call (getting input that is uppercased) [xxinput <VARIABLE>]
-                        if (currentLine.ToLower() == "xxinput") abort($"XXINPUT must be passed 1 argument! (Line Number: {currentLineNumber})");
-                        if (currentLine.Substring(0, 8).ToLower() == "xxinput ")
+                        if (currentLine.ToLower() == "xxinput") abort($"XXINPUT must be passed 1 argument! (Line Number: {errorLineNumber})");
+                        if (currentLine.Length >= 8 && currentLine.Substring(0, 8).ToLower() == "xxinput ")
                         {
                             string variableName = currentLine.Substring(8).Trim();
                             string userInput = ReadLine().ToUpper();
@@ -260,7 +264,7 @@ namespace Masker
                         }
 
                         // Invalid command handler
-                        if (currentLine[0].ToString() != "") abort($"Invalid command! (Line Number: {currentLineNumber}, Value: [{currentLine}])");
+                        if (currentLine[0].ToString() != "") abort($"Invalid command! (Line Number: {errorLineNumber}, Value: [{currentLine}])");
 
                     }
                 }
@@ -278,13 +282,13 @@ namespace Masker
                 WriteLine($"{err.Message}");
                 Write($"{err.StackTrace}\n\n");
                 abort($"Sorry, but Masker ran into an error. If your code looks completely fine, please make a issue on the Github repository. Provide this message along with the text shown above. " +
-                    $"(Line Number: [{currentLineNumber}], Current Line In File: [{currentLine}])");
+                    $"(Line Number: [{errorLineNumber}], Current Line In File: [{currentLine}])");
             }
         }
 
         public static string getValueOfVariable(string variableName)
         {
-            if (!variableExists(variableName)) abort($"Variable does not exist. (Line Number: {currentLineNumber}, Value: {variableName})");
+            if (!variableExists(variableName)) abort($"Variable does not exist. (Line Number: {errorLineNumber}, Value: {variableName})");
             int index = variableNames.IndexOf(variableName);
             string variableValue = variableValues[index];
             return variableValue;
@@ -292,7 +296,7 @@ namespace Masker
 
         public static void setValueOfVariable(string variableName, string newValue)
         {
-            if (!variableExists(variableName)) abort($"Variable does not exist. (Line Number: {currentLineNumber}, Value: {variableName})");
+            if (!variableExists(variableName)) abort($"Variable does not exist. (Line Number: {errorLineNumber}, Value: {variableName})");
             int index = variableNames.IndexOf(variableName);
             variableValues[index] = newValue;
         }
@@ -361,7 +365,7 @@ namespace Masker
             else
             {
                 // If it doesn't:
-                if (!justCheck) abort($"String value does not have quotation marks. (Line Number: {currentLineNumber}, Value: [{stringToCheck}])");
+                if (!justCheck) abort($"String value does not have quotation marks. (Line Number: {errorLineNumber}, Value: [{stringToCheck}])");
                 return "no";
             }
         }
