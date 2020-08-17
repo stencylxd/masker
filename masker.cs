@@ -64,6 +64,7 @@ namespace Masker
                         if (currentLineNumber > code.Length - 1) break;
                         currentLine = code[(int)currentLineNumber].Trim();
 
+
                         // Handlers for errors
 
                         // Empty handler
@@ -103,6 +104,23 @@ namespace Masker
                             string variableName = actualStatement.Substring(0, indexOfSpace).Trim();
                             string variableValue = actualStatement.Substring(indexOfSpace).removeStringAbort();
                             setValueOfVariable(variableName, variableValue);
+                            continue;
+                        }
+
+                        // ADD call (add value to number var) [add <VARIABLE> <VALUE>]
+                        if (currentLine.ToLower() == "ADD") abort($"ADD must be given 2 arguments! (Line Number: {errorLineNumber})");
+                        if (currentLine.Length >= 4 && currentLine.Substring(0, 4).ToLower() == "add ")
+                        {
+                            string variableName = currentLine.Substring(4).Trim();
+                            int indexOfSpace = variableName.IndexOf(" ");
+                            string value = variableName.Substring(0, indexOfSpace).Trim();
+                            int number;
+                            int number2;
+                            if (int.TryParse(value, out number) && int.TryParse(getValueOfVariable(variableName), out number2))
+                            {
+                                number += number2;
+                                setValueOfVariable(variableName, number.ToString());
+                            } else abort($"ADD must be given 2 arguments! (Line Number: {errorLineNumber})");
                             continue;
                         }
 
@@ -159,6 +177,30 @@ namespace Masker
                             if (colorName == "darkmegenta") ForegroundColor = DarkMagenta;
                             if (colorName == "black") ForegroundColor = Black;
                             if (colorName == "white") ForegroundColor = White;
+                            continue;
+                        }
+
+                        // XCOLOR call (change background of text) [xcolor <color name>]
+                        if (currentLine.Trim().ToLower() == "xcolor") abort($"XCOLOR must be passed 1 argument! (Line Number: {errorLineNumber})");
+                        if (currentLine.Length >= 7 && currentLine.Substring(0, 7).ToLower() == "xcolor ")
+                        {
+                            string colorName = currentLine.Substring(6).Trim().ToLower();
+                            if (colorName == "blue") BackgroundColor = Blue;
+                            if (colorName == "red") BackgroundColor = Red;
+                            if (colorName == "magenta") BackgroundColor = Magenta;
+                            if (colorName == "yellow") BackgroundColor = Yellow;
+                            if (colorName == "cyan") BackgroundColor = Cyan;
+                            if (colorName == "grey") BackgroundColor = Gray;
+                            if (colorName == "green") BackgroundColor = Green;
+                            if (colorName == "darkred") BackgroundColor = DarkRed;
+                            if (colorName == "darkblue") BackgroundColor = DarkBlue;
+                            if (colorName == "darkgreen") BackgroundColor = DarkGreen;
+                            if (colorName == "darkyellow") BackgroundColor = DarkYellow;
+                            if (colorName == "darkgrey") BackgroundColor = DarkGray;
+                            if (colorName == "darkcyan") BackgroundColor = DarkCyan;
+                            if (colorName == "darkmegenta") BackgroundColor = DarkMagenta;
+                            if (colorName == "black") BackgroundColor = Black;
+                            if (colorName == "white") BackgroundColor = White;
                             continue;
                         }
 

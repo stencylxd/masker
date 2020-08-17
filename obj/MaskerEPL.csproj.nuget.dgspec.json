@@ -1,23 +1,23 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\mlast\\Desktop\\github\\masker\\MaskerEPL.csproj": {}
+    "C:\\Users\\stenc\\Desktop\\github\\masker\\MaskerEPL.csproj": {}
   },
   "projects": {
-    "C:\\Users\\mlast\\Desktop\\github\\masker\\MaskerEPL.csproj": {
+    "C:\\Users\\stenc\\Desktop\\github\\masker\\MaskerEPL.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\mlast\\Desktop\\github\\masker\\MaskerEPL.csproj",
+        "projectUniqueName": "C:\\Users\\stenc\\Desktop\\github\\masker\\MaskerEPL.csproj",
         "projectName": "MaskerEPL",
-        "projectPath": "C:\\Users\\mlast\\Desktop\\github\\masker\\MaskerEPL.csproj",
-        "packagesPath": "C:\\Users\\mlast\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\mlast\\Desktop\\github\\masker\\obj\\",
+        "projectPath": "C:\\Users\\stenc\\Desktop\\github\\masker\\MaskerEPL.csproj",
+        "packagesPath": "C:\\Users\\stenc\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\stenc\\Desktop\\github\\masker\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Microsoft\\Xamarin\\NuGet\\"
         ],
         "configFilePaths": [
-          "C:\\Users\\mlast\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\stenc\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Xamarin.Offline.config"
         ],
@@ -26,9 +26,7 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "C:\\Users\\mlast\\AppData\\Roaming\\Cosmos User Kit\\packages\\": {},
-          "https://api.nuget.org/v3/index.json": {},
-          "https://nuget.emzi0767.com/api/v3/index.json": {}
+          "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "netcoreapp3.1": {
