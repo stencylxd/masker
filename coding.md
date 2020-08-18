@@ -37,6 +37,22 @@ Put 2 forward slashes at the beginning of the line.
 // <your comment text here>
 ```
 
+Basic Commands:
+```
+// exit command (will exit program)
+exit
+
+// color command (will set foreground color of text being printed)
+color <color name>
+// to set background color:
+xcolor <color name>
+
+// sleep command (will pause program execution for an amount of time)
+sleep <number of seconds>
+// for milliseconds:
+sleepx <number of milliseconds>
+```
+
 Making variables:
 ```
 var <your variable name here> <value>
@@ -62,9 +78,104 @@ print "your cool text here"
 
 OR:
 
-print <variable name>
+print <variable name to print variable value>
 
 And if you don't want the carriage return:
 
 xprint <same as normal print values>
 ```
+
+Getting input:
+```
+// Must create a variable first.
+var user_input
+
+// Syntax:
+input <variable name>
+
+// This will get input from the user and put the value in the variable you provided.
+// Do you want the user input to be converted to uppercase or lowercase?
+
+// xinput = input will be lowercased
+// xxinput = input will be uppercased
+// input = no processing will happen to input
+```
+
+## Checkpoints, Conditionals, and Loops
+These are some of the more complicated stuff, but once you know it it's a piece of cake.
+### Checkpoints and Gotos
+
+Checkpoints are little markers.<br>
+When you place one down, you can always go back to it.<br>
+
+Example:
+```
+// To make a checkpoint, use the statement "CP"
+
+cp <your chosen checkpoint name>
+
+// Here is a simple example of a checkpoint being made:
+
+cp start
+
+// Now here's another statement:
+
+goto <checkpoint name>
+
+// This statement will goto the line where you created your checkpoint and continue from there.
+// Guess what this code does:
+
+cp infinite_loop
+
+print "haha poop piss fart"
+
+goto infinite_loop
+
+// The code above is an infinite loop because it will keep on executing the goto statement with no stopping.
+// But what about this:
+
+cp noninf_loop
+
+goto exit
+
+goto noninf_loop
+
+cp exit
+
+// This is not infinite because it breaks out of the loop by gotoing a statement outside of the loop.
+```
+
+### Conditionals
+
+Conditionals are statements that do something if a conditional statement is true.<br>
+For example:
+
+**if this is equal to that then do something**
+
+In Masker, there are conditional goto statements. Lets have a look:
+
+```
+
+// Syntax:
+gotoif <value1> <value2> <checkpoint>
+
+// If value1 is equal to value2 then it will goto the checkpoint.
+// Otherwise, it won't do anything.
+
+// Example of it being used:
+
+var user_input
+var password "12345"
+
+xprint "Enter your Password: "
+input user_input
+
+gotoif user_input password correct
+print "You got it incorrect. Ouch!"
+exit
+
+cp correct
+print "Wow, you got it correct!"
+```
+
+##### Class dismissed. [Go back to main page](https://stencylxd.github.io/masker).
