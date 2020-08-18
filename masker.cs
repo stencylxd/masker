@@ -56,7 +56,6 @@ namespace Masker
                         }
                     }
                     currentLineNumber = -1;
-                    bool firstSpace = false;
                     while (true)
                     {
                         currentLineNumber++;
@@ -68,18 +67,15 @@ namespace Masker
                         // Handlers for errors
 
                         // Empty handler
-                        if (currentLine.Trim() == Empty) {
-                            if (!firstSpace) { firstSpace = true; currentLineNumber++; }
-                            continue;
-                        }
+                        if (currentLine.Trim() == Empty) continue;
                         // Code Comments <//>
-                        if (currentLine.Length == 2 && currentLine.Substring(0, 2) == "//") continue;
+                        if (currentLine.Length >= 2 && currentLine.Substring(0, 2) == "//") continue;
                         
                         // CP handler
                         if (currentLine.Length >= 3 && currentLine.Substring(0, 3).ToLower() == "cp ") continue;
 
                         // Command processors
-
+                         
                         // VAR call (defining a variable) [var <VARIABLE> !"<VALUE>"]
                         if (currentLine.ToLower() == "var") abort($"VAR must be given atleast 1 argument! (Line Number: {errorLineNumber})");
                         if (currentLine.Length >= 4 && currentLine.Substring(0, 4).ToLower() == "var ")
@@ -111,16 +107,16 @@ namespace Masker
                         if (currentLine.ToLower() == "ADD") abort($"ADD must be given 2 arguments! (Line Number: {errorLineNumber})");
                         if (currentLine.Length >= 4 && currentLine.Substring(0, 4).ToLower() == "add ")
                         {
-                            string variableName = currentLine.Substring(4).Trim();
-                            int indexOfSpace = variableName.IndexOf(" ");
-                            string value = variableName.Substring(0, indexOfSpace).Trim();
+                            string[] vals = currentLine.Substring(4).Split(" ");
+                            string variableName = vals[0];
+                            string value = vals[1];
                             int number;
                             int number2;
                             if (int.TryParse(value, out number) && int.TryParse(getValueOfVariable(variableName), out number2))
                             {
                                 number += number2;
                                 setValueOfVariable(variableName, number.ToString());
-                            } else abort($"ADD must be given 2 arguments! (Line Number: {errorLineNumber})");
+                            } else abort($"One of your given values was not a number. (Line Number: {errorLineNumber})");
                             continue;
                         }
 
