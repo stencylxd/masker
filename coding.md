@@ -1,4 +1,4 @@
-# Masker : Coding Tutorial
+# Coding Tutorial
 This page will teach you how to code in Masker.<br>
 If you are having trouble understanding, [come in contact with me](mailto:mail@stencylxd.ga) and tell me what I should fix.
 ## Simple Data Types / Variables
@@ -19,7 +19,7 @@ Boolean: true
 Now that you know data types, you can learn variables.<br>
 Think of a variable as a box. When you put something in the box, it stays there until you change the item in it.<br>
 Now just convert the items that you put in the box to values, and the box to a variable.<br>
-The only thing different is that in most programming languages you come across, you can't just put any item in the box. You have to tell the box what you are putting in.<br>
+The only thing different is that in most languages you come across, you can't just put anything in the box. You have to tell the box what you are putting in.<br>
 This is where the data types come in. Data types are the thing telling the box what you are putting in.<br>
 For example: If I gave the box the data type of string, it would only take strings.<br>
 But don't worry, you don't have to do that stuff in Masker. Every variable you make is automatically assigned the string data type.
