@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\stenc\\Desktop\\github\\masker\\MaskerEPL.csproj": {}
+    "C:\\Users\\stenc\\Desktop\\projects\\masker\\MaskerEPL.csproj": {}
   },
   "projects": {
-    "C:\\Users\\stenc\\Desktop\\github\\masker\\MaskerEPL.csproj": {
+    "C:\\Users\\stenc\\Desktop\\projects\\masker\\MaskerEPL.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\stenc\\Desktop\\github\\masker\\MaskerEPL.csproj",
+        "projectUniqueName": "C:\\Users\\stenc\\Desktop\\projects\\masker\\MaskerEPL.csproj",
         "projectName": "MaskerEPL",
-        "projectPath": "C:\\Users\\stenc\\Desktop\\github\\masker\\MaskerEPL.csproj",
+        "projectPath": "C:\\Users\\stenc\\Desktop\\projects\\masker\\MaskerEPL.csproj",
         "packagesPath": "C:\\Users\\stenc\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\stenc\\Desktop\\github\\masker\\obj\\",
+        "outputPath": "C:\\Users\\stenc\\Desktop\\projects\\masker\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Microsoft\\Xamarin\\NuGet\\"
@@ -26,7 +26,8 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "https://api.nuget.org/v3/index.json": {}
+          "https://api.nuget.org/v3/index.json": {},
+          "https://nuget.emzi0767.com/api/v3/index.json": {}
         },
         "frameworks": {
           "netcoreapp3.1": {

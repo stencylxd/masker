@@ -58,6 +58,10 @@ namespace Masker
                     currentLineNumber = -1;
                     while (true)
                     {
+                        while (KeyAvailable)
+                        {
+                            ConsoleKeyInfo key = ReadKey(true);
+                        }
                         currentLineNumber++;
                         errorLineNumber = currentLineNumber + 1;
                         if (currentLineNumber > code.Length - 1) break;
