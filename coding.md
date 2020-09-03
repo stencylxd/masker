@@ -160,6 +160,7 @@ In Masker, there are conditional goto statements. Lets have a look:
 gotoif <value1> <value2> <checkpoint>
 
 // If value1 is equal to value2 then it will goto the checkpoint.
+// You can't compare two string type values.
 // Otherwise, it won't do anything.
 
 // Example of it being used:

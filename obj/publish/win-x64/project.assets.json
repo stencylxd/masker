@@ -15,11 +15,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\stenc\\Desktop\\github\\masker\\MaskerEPL.csproj",
+      "projectUniqueName": "C:\\Users\\stenc\\Desktop\\projects\\masker\\MaskerEPL.csproj",
       "projectName": "MaskerEPL",
-      "projectPath": "C:\\Users\\stenc\\Desktop\\github\\masker\\MaskerEPL.csproj",
+      "projectPath": "C:\\Users\\stenc\\Desktop\\projects\\masker\\MaskerEPL.csproj",
       "packagesPath": "C:\\Users\\stenc\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\stenc\\Desktop\\github\\masker\\obj\\publish\\win-x64\\",
+      "outputPath": "C:\\Users\\stenc\\Desktop\\projects\\masker\\obj\\publish\\win-x64\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Microsoft\\Xamarin\\NuGet\\"
@@ -34,7 +34,8 @@
       ],
       "sources": {
         "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-        "https://api.nuget.org/v3/index.json": {}
+        "https://api.nuget.org/v3/index.json": {},
+        "https://nuget.emzi0767.com/api/v3/index.json": {}
       },
       "frameworks": {
         "netcoreapp3.1": {
@@ -59,6 +60,20 @@
         ],
         "assetTargetFallback": true,
         "warn": true,
+        "downloadDependencies": [
+          {
+            "name": "Microsoft.AspNetCore.App.Runtime.win-x64",
+            "version": "[3.1.7, 3.1.7]"
+          },
+          {
+            "name": "Microsoft.NETCore.App.Runtime.win-x64",
+            "version": "[3.1.7, 3.1.7]"
+          },
+          {
+            "name": "Microsoft.WindowsDesktop.App.Runtime.win-x64",
+            "version": "[3.1.7, 3.1.7]"
+          }
+        ],
         "frameworkReferences": {
           "Microsoft.NETCore.App": {
             "privateAssets": "all"

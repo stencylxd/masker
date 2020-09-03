@@ -6,6 +6,8 @@ using System.IO;
 using System.Collections.Generic;
 using static System.String;
 using static System.ConsoleColor;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
 namespace Masker
 {
@@ -151,7 +153,8 @@ namespace Masker
                         if (currentLine.ToLower() == "sleep") abort($"SLEEP must be given atleast 1 argument! (Line Number: {errorLineNumber})");
                         if (currentLine.Length >= 6 && currentLine.Substring(0, 6).ToLower() == "sleep ")
                         {
-                            int actualNumber = Convert.ToInt32(currentLine.Substring(5).Trim()) * 1000;
+                            int actualNumber;
+                            if (!int.TryParse(currentLine.Substring(6).Trim(), out actualNumber)) abort($"Value is not number! (INT type!) (Line Number: {errorLineNumber})");
                             Thread.Sleep(actualNumber);
                             continue;
                         }
@@ -254,12 +257,20 @@ namespace Masker
                         if (currentLine.ToLower() == "gotoif") abort($"GOTOIF must be passed 3 arguments! (Line Number: {errorLineNumber})");
                         if (currentLine.Length >= 7 && currentLine.Substring(0, 7).ToLower() == "gotoif ")
                         {
-                            string arguments = currentLine.Substring(6).Trim();
-                            string value1 = arguments.Substring(0, arguments.IndexOf(" ")).Trim();
-                            arguments = arguments.Substring(arguments.IndexOf(" ")).Trim();
-                            string value2 = arguments.Substring(0, arguments.IndexOf(" "));
-                            string checkpointName = arguments.Substring(arguments.IndexOf(" ")).Trim();
-
+                            string argus = currentLine.Substring(6).Trim();
+                            string[] argus2 = argus.Split(' ');
+                            string value1;
+                            string value2;
+                            string checkpointName = argus2[^1];
+                            if (argus[0] == '"')
+                            {
+                                value2 = argus2[^2];
+                                value1 = argus.Substring(0, argus.Length - (value2.Length + 1 + checkpointName.Length)).Trim();
+                            } else
+                            {
+                                value1 = argus.Substring(0, argus.IndexOf(' ')).Trim();
+                                value2 = argus.Substring(argus.IndexOf(' '), argus.Length - (checkpointName.Length + 1 + value1.Length)).Trim();
+                            }
                             if (value1.removeStringAbort(true) != "no") value1 = value1.removeStringAbort();
                             else value1 = getValueOfVariable(value1);
                             if (value2.removeStringAbort(true) != "no") value2 = value2.removeStringAbort();
@@ -280,7 +291,8 @@ namespace Masker
                         if (currentLine.ToLower() == "sleepx") abort($"SLEEPX must be passed 1 arguments! (Line Number: {errorLineNumber})");
                         if (currentLine.Length >= 7 && currentLine.Substring(0, 7).ToLower() == "sleepx ")
                         {
-                            int actualNumber = Convert.ToInt32(currentLine.Substring(6).Trim());
+                            int actualNumber;
+                            if (!int.TryParse(currentLine.Substring(6).Trim(), out actualNumber)) abort($"Value is not number! (INT type!) (Line Number: {errorLineNumber})");
                             Thread.Sleep(actualNumber);
                             continue;
                         }

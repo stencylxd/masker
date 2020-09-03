@@ -1,9 +1,11 @@
 {
   "version": 2,
-  "dgSpecHash": "Dsmgy1MKVlEQG1jkE1690NwJG8htm4gcYJQY41fy8jXjm9lPuXku9s75kWSSisJEejhdkzzrIAcB+WGH5Gk8Ww==",
+  "dgSpecHash": "8D4cksXQAsdHquh8YWwdlUN3j3ow5bUHYeN+n6MRCds85kfyPNRiEvRC8CjDhsFQlB6x9nJ9ZYuv+oNjTojGDQ==",
   "success": true,
-  "projectFilePath": "C:\\Users\\stenc\\Desktop\\github\\masker\\MaskerEPL.csproj",
+  "projectFilePath": "C:\\Users\\stenc\\Desktop\\projects\\masker\\MaskerEPL.csproj",
   "expectedPackageFiles": [
+    "C:\\Users\\stenc\\.nuget\\packages\\microsoft.netcore.app.runtime.osx-x64\\3.1.7\\microsoft.netcore.app.runtime.osx-x64.3.1.7.nupkg.sha512",
+    "C:\\Users\\stenc\\.nuget\\packages\\microsoft.aspnetcore.app.runtime.osx-x64\\3.1.7\\microsoft.aspnetcore.app.runtime.osx-x64.3.1.7.nupkg.sha512",
     "C:\\Users\\stenc\\.nuget\\packages\\microsoft.netcore.app.host.osx-x64\\3.1.7\\microsoft.netcore.app.host.osx-x64.3.1.7.nupkg.sha512"
   ],
   "logs": []
