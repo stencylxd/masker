@@ -155,7 +155,7 @@ namespace Masker
                         {
                             int actualNumber;
                             if (!int.TryParse(currentLine.Substring(6).Trim(), out actualNumber)) abort($"Value is not number! (INT type!) (Line Number: {errorLineNumber})");
-                            Thread.Sleep(actualNumber);
+                            Thread.Sleep(actualNumber * 1000);
                             continue;
                         }
 

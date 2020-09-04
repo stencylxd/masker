@@ -14,11 +14,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\stenc\\Desktop\\projects\\masker\\MaskerEPL.csproj",
+      "projectUniqueName": "C:\\Users\\stenc\\Desktop\\projects\\masker\\source\\MaskerEPL.csproj",
       "projectName": "MaskerEPL",
-      "projectPath": "C:\\Users\\stenc\\Desktop\\projects\\masker\\MaskerEPL.csproj",
+      "projectPath": "C:\\Users\\stenc\\Desktop\\projects\\masker\\source\\MaskerEPL.csproj",
       "packagesPath": "C:\\Users\\stenc\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\stenc\\Desktop\\projects\\masker\\obj\\",
+      "outputPath": "C:\\Users\\stenc\\Desktop\\projects\\masker\\source\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Microsoft\\Xamarin\\NuGet\\"

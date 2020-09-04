@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "/7qI5lb1kMKtc+/tspjTPWk6AZYIxwMLcKA1zJQns8ZFOpw8BHx2jG2UdRDYesfgAgp9bA61nf1+igJc0YHvgA==",
+  "dgSpecHash": "q+5jmyhUQf7A2xullcZJSLNwzAxgG6Ycovr09KuxGqBRZSCMxeykcr8f8HJbpAMfRsFxhaaphq8+U0yJ8dvJbA==",
   "success": true,
-  "projectFilePath": "C:\\Users\\stenc\\Desktop\\projects\\masker\\MaskerEPL.csproj",
+  "projectFilePath": "C:\\Users\\stenc\\Desktop\\projects\\masker\\source\\MaskerEPL.csproj",
   "expectedPackageFiles": [],
   "logs": []
 }
