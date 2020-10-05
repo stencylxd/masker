@@ -1,0 +1,13 @@
+C:\Users\stenc\Desktop\projects\masker\source\bin\Release\netcoreapp3.1\MaskerEPL.exe
+C:\Users\stenc\Desktop\projects\masker\source\bin\Release\netcoreapp3.1\MaskerEPL.deps.json
+C:\Users\stenc\Desktop\projects\masker\source\bin\Release\netcoreapp3.1\MaskerEPL.runtimeconfig.json
+C:\Users\stenc\Desktop\projects\masker\source\bin\Release\netcoreapp3.1\MaskerEPL.runtimeconfig.dev.json
+C:\Users\stenc\Desktop\projects\masker\source\bin\Release\netcoreapp3.1\MaskerEPL.dll
+C:\Users\stenc\Desktop\projects\masker\source\bin\Release\netcoreapp3.1\MaskerEPL.pdb
+C:\Users\stenc\Desktop\projects\masker\source\obj\Release\netcoreapp3.1\MaskerEPL.csprojAssemblyReference.cache
+C:\Users\stenc\Desktop\projects\masker\source\obj\Release\netcoreapp3.1\MaskerEPL.AssemblyInfoInputs.cache
+C:\Users\stenc\Desktop\projects\masker\source\obj\Release\netcoreapp3.1\MaskerEPL.AssemblyInfo.cs
+C:\Users\stenc\Desktop\projects\masker\source\obj\Release\netcoreapp3.1\MaskerEPL.csproj.CoreCompileInputs.cache
+C:\Users\stenc\Desktop\projects\masker\source\obj\Release\netcoreapp3.1\MaskerEPL.dll
+C:\Users\stenc\Desktop\projects\masker\source\obj\Release\netcoreapp3.1\MaskerEPL.pdb
+C:\Users\stenc\Desktop\projects\masker\source\obj\Release\netcoreapp3.1\MaskerEPL.genruntimeconfig.cache

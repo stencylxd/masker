@@ -1,0 +1,12 @@
+{
+  "version": 2,
+  "dgSpecHash": "aBz089JnN3y/wBsV10dFgESVHWvKsmVJb/sENr6oV23n17xPQaSPRzXHRZAnxYpnTzVFqsKN8jzCRvJuxHMQwQ==",
+  "success": true,
+  "projectFilePath": "C:\\Users\\stenc\\Desktop\\projects\\masker\\source\\MaskerEPL.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\stenc\\.nuget\\packages\\microsoft.netcore.app.runtime.linux-arm\\3.1.7\\microsoft.netcore.app.runtime.linux-arm.3.1.7.nupkg.sha512",
+    "C:\\Users\\stenc\\.nuget\\packages\\microsoft.aspnetcore.app.runtime.linux-arm\\3.1.7\\microsoft.aspnetcore.app.runtime.linux-arm.3.1.7.nupkg.sha512",
+    "C:\\Users\\stenc\\.nuget\\packages\\microsoft.netcore.app.host.linux-arm\\3.1.7\\microsoft.netcore.app.host.linux-arm.3.1.7.nupkg.sha512"
+  ],
+  "logs": []
+}
