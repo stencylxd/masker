@@ -1,13 +1,13 @@
-﻿
+﻿// Masker by stencylxd, full codefile
+
+#region Deps
 using System;
 using static System.Console;
-using System.Threading;
 using System.IO;
 using System.Collections.Generic;
-using static System.String;
 using static System.ConsoleColor;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
+using static System.String;
+#endregion Deps
 
 namespace Masker
 {
@@ -155,7 +155,7 @@ namespace Masker
                         {
                             int actualNumber;
                             if (!int.TryParse(currentLine.Substring(6).Trim(), out actualNumber)) abort($"Value is not number! (INT type!) (Line Number: {errorLineNumber})");
-                            Thread.Sleep(actualNumber * 1000);
+                            System.Threading.Thread.Sleep(actualNumber * 1000);
                             continue;
                         }
 
@@ -164,22 +164,7 @@ namespace Masker
                         if (currentLine.Length >= 6 && currentLine.Substring(0, 6).ToLower() == "color ")
                         {
                             string colorName = currentLine.Substring(5).Trim().ToLower();
-                            if (colorName == "blue") ForegroundColor = Blue;
-                            if (colorName == "red") ForegroundColor = Red;
-                            if (colorName == "magenta") ForegroundColor = Magenta;
-                            if (colorName == "yellow") ForegroundColor = Yellow;
-                            if (colorName == "cyan") ForegroundColor = Cyan;
-                            if (colorName == "grey") ForegroundColor = Gray;
-                            if (colorName == "green") ForegroundColor = Green;
-                            if (colorName == "darkred") ForegroundColor = DarkRed;
-                            if (colorName == "darkblue") ForegroundColor = DarkBlue;
-                            if (colorName == "darkgreen") ForegroundColor = DarkGreen;
-                            if (colorName == "darkyellow") ForegroundColor = DarkYellow;
-                            if (colorName == "darkgrey") ForegroundColor = DarkGray;
-                            if (colorName == "darkcyan") ForegroundColor = DarkCyan;
-                            if (colorName == "darkmegenta") ForegroundColor = DarkMagenta;
-                            if (colorName == "black") ForegroundColor = Black;
-                            if (colorName == "white") ForegroundColor = White;
+                            ForegroundColor = stringColor(colorName);
                             continue;
                         }
 
@@ -188,22 +173,7 @@ namespace Masker
                         if (currentLine.Length >= 7 && currentLine.Substring(0, 7).ToLower() == "xcolor ")
                         {
                             string colorName = currentLine.Substring(6).Trim().ToLower();
-                            if (colorName == "blue") BackgroundColor = Blue;
-                            if (colorName == "red") BackgroundColor = Red;
-                            if (colorName == "magenta") BackgroundColor = Magenta;
-                            if (colorName == "yellow") BackgroundColor = Yellow;
-                            if (colorName == "cyan") BackgroundColor = Cyan;
-                            if (colorName == "grey") BackgroundColor = Gray;
-                            if (colorName == "green") BackgroundColor = Green;
-                            if (colorName == "darkred") BackgroundColor = DarkRed;
-                            if (colorName == "darkblue") BackgroundColor = DarkBlue;
-                            if (colorName == "darkgreen") BackgroundColor = DarkGreen;
-                            if (colorName == "darkyellow") BackgroundColor = DarkYellow;
-                            if (colorName == "darkgrey") BackgroundColor = DarkGray;
-                            if (colorName == "darkcyan") BackgroundColor = DarkCyan;
-                            if (colorName == "darkmegenta") BackgroundColor = DarkMagenta;
-                            if (colorName == "black") BackgroundColor = Black;
-                            if (colorName == "white") BackgroundColor = White;
+                            BackgroundColor = stringColor(colorName);
                             continue;
                         }
 
@@ -293,7 +263,7 @@ namespace Masker
                         {
                             int actualNumber;
                             if (!int.TryParse(currentLine.Substring(6).Trim(), out actualNumber)) abort($"Value is not number! (INT type!) (Line Number: {errorLineNumber})");
-                            Thread.Sleep(actualNumber);
+                            System.Threading.Thread.Sleep(actualNumber);
                             continue;
                         }
 
@@ -335,12 +305,35 @@ namespace Masker
                 if (err is UnauthorizedAccessException) abort("Masker does not have permission to read this file. (Caught: UnauthorizedAccessException)");
                 WriteLine($"{err.Message}");
                 Write($"{err.StackTrace}\n\n");
-                abort($"Sorry, but Masker ran into an error. If your code looks completely fine, please make a issue on the Github repository. Provide this message along with the text shown above. " +
-                    $"(Line Number: [{errorLineNumber}], Current Line In File: [{currentLine}])");
+                abort($"Sorry, but Masker ran into an error.\n" + 
+                "If your code looks completely fine, please make a issue on the Github repository.\n" +
+                "Provide this message along with the text shown above.\n" +
+                $"(Line Number: [{errorLineNumber}], Current Line In File: [{currentLine}])");
             }
         }
 
-        public static string getValueOfVariable(string variableName)
+        public static ConsoleColor stringColor(string color) {
+            switch (color) {
+                case "blue": return Blue;
+                case "red": return Red;
+                case "magenta": return Magenta;
+                case "yellow": return Yellow;
+                case "cyan": return Cyan;
+                case "gray": return Gray;
+                case "green": return Green;
+                case "darkred": return DarkRed;
+                case "darkblue": return DarkBlue;
+                case "darkgreen": return DarkGreen;
+                case "darkyellow": return DarkYellow;
+                case "darkgray": return DarkGray;
+                case "darkcyan": return DarkCyan;
+                case "darkmagenta": return DarkMagenta;
+                case "black": return Black;
+                default: return White; // White if invalid color specified
+            }
+        }
+
+        public static string getValueOfVariable(string variableName) // Get value of created variable
         {
             if (!variableExists(variableName)) abort($"Variable does not exist. (Line Number: {errorLineNumber}, Value: {variableName})");
             int index = variableNames.IndexOf(variableName);
@@ -348,7 +341,7 @@ namespace Masker
             return variableValue;
         }
 
-        public static void setValueOfVariable(string variableName, string newValue)
+        public static void setValueOfVariable(string variableName, string newValue) // Set value of created variable
         {
             if (!variableExists(variableName)) abort($"Variable does not exist. (Line Number: {errorLineNumber}, Value: {variableName})");
             int index = variableNames.IndexOf(variableName);
@@ -367,7 +360,7 @@ namespace Masker
             }
         }
 
-        public static int newVariable(string variableName, string variableValue)
+        public static int newVariable(string variableName, string variableValue) // Make new variable in database**
         {
             if (!variableExists(variableName))
             {
@@ -381,7 +374,7 @@ namespace Masker
             }
         }
 
-        public static void abort(string errMessage, bool error = true, int exitCode = 0)
+        public static void abort(string errMessage, bool error = true, int exitCode = 0) // Close program due to error
         {
             if (error)
             {
@@ -397,7 +390,7 @@ namespace Masker
             Environment.Exit(exitCode);
         }
 
-        public static void warn(string warningMessage)
+        public static void warn(string warningMessage) // Warn without closing program
         {
             ConsoleColor backupColor = ForegroundColor;
             ForegroundColor = Red;

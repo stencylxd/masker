@@ -1,9 +1,8 @@
 {
   "runtimeOptions": {
     "additionalProbingPaths": [
-      "C:\\Users\\stenc\\.dotnet\\store\\|arch|\\|tfm|",
-      "C:\\Users\\stenc\\.nuget\\packages",
-      "C:\\Microsoft\\Xamarin\\NuGet"
+      "/home/stencylxd/.dotnet/store/|arch|/|tfm|",
+      "/home/stencylxd/.nuget/packages"
     ]
   }
 }
