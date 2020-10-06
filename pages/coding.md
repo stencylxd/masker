@@ -26,9 +26,9 @@ For example: If I gave the box the data type of string, it would only take strin
 But don't worry, you don't have to do that stuff in Masker. Every variable you make is automatically assigned the string data type.
 
 ## Statements
-Now that you know variables and data types, it's time for the meat and potatos.<br>
+Now that you know variables and data types, it's time for the meat and potatoes.<br>
 Statements are what make up your code. They are very important.<br>
-As of right now, there are 17 statements in Masker.<br>
+As of right now, there are 18 statements in Masker.<br>
 This section will tell you the syntax for all of the statements.
 <br><br>
 To write code comments:<br>
@@ -114,11 +114,11 @@ var user_input
 input <variable name>
 
 // This will get input from the user and put the value in the variable you provided.
-// Do you want the user input to be converted to uppercase or lowercase?
+// Do you want the user input to be converted to lowercase?
+xinput <variable name>
 
-// xinput = input will be lowercased
-// xxinput = input will be uppercased
-// input = no processing will happen to input
+// You can also read a single char like this:
+readchar <variable name>
 ```
 
 ## Checkpoints, Conditionals, and Loops

@@ -13,7 +13,7 @@ namespace Masker
 {
     public static class MaskerEPL
     {
-
+        #region Variable Definitions
         public static List<string> variableNames = new List<string> { };
         public static List<string> variableValues = new List<string> { };
         public static float currentLineNumber = 0;
@@ -25,18 +25,20 @@ namespace Masker
         public static float numberToJumpTo;
         public static string jumpNameToLookFor;
         public static string[] code = new string[] { };
-
+        #endregion Variable Definitions
         public static void Main(string[] args)
         {
             try
             {
                 if (args.Length > 0)
                 {
+                    // Open file
                     string codeFilePath = args[0];
                     if (!File.Exists(codeFilePath)) abort("Masker: File does not exist.", false);
                     codeFile = new StreamReader(codeFilePath);
                     code = codeFile.ReadToEnd().Split('\n');
                     Clear();
+                    // Tons of filters
                     foreach (string line in code)
                     {
                         currentLine = line.Trim();
@@ -46,6 +48,7 @@ namespace Masker
                         if (currentLine.Trim() == Empty) continue;
                         // To handle substring length errors when statement less than 2 chars is processed
                         if (currentLine.Length < 2) abort($"There are no statements less than 2 characters long! (Line Number: {errorLineNumber}, Value: {currentLine})");
+                        // Checkpoint scanner
                         if (currentLine.Substring(0, 2).ToLower() == "cp")
                         {
                             if (currentLine.Trim().ToLower() == "cp") abort($"CP must be passed 1 argument! (Line Number: {errorLineNumber})");
@@ -58,30 +61,30 @@ namespace Masker
                         }
                     }
                     currentLineNumber = -1;
+                    // Main program loop
                     while (true)
                     {
+                        // Clear keybuffer
                         while (KeyAvailable)
                         {
                             ConsoleKeyInfo key = ReadKey(true);
                         }
+
+                        // Swap to next line in file
                         currentLineNumber++;
                         errorLineNumber = currentLineNumber + 1;
                         if (currentLineNumber > code.Length - 1) break;
                         currentLine = code[(int)currentLineNumber].Trim();
 
-
-                        // Handlers for errors
-
                         // Empty handler
                         if (currentLine.Trim() == Empty) continue;
                         // Code Comments <//>
-                        if (currentLine.Length >= 2 && currentLine.Substring(0, 2) == "//") continue;
-                        
+                        if (currentLine.Length >= 2 && currentLine.Substring(0, 2) == "//") continue;              
                         // CP handler
                         if (currentLine.Length >= 3 && currentLine.Substring(0, 3).ToLower() == "cp ") continue;
 
-                        // Command processors
-                         
+                        // Statements
+                        #region Variables
                         // VAR call (defining a variable) [var <VARIABLE> !"<VALUE>"]
                         if (currentLine.ToLower() == "var") abort($"VAR must be given atleast 1 argument! (Line Number: {errorLineNumber})");
                         if (currentLine.Length >= 4 && currentLine.Substring(0, 4).ToLower() == "var ")
@@ -125,7 +128,8 @@ namespace Masker
                             } else abort($"One of your given values was not a number. (Line Number: {errorLineNumber})");
                             continue;
                         }
-
+                        #endregion Variables
+                        #region Program Order
                         // EXIT call (exit program) [exit]
                         if (currentLine.ToLower() == "exit") Environment.Exit(0);
 
@@ -142,10 +146,38 @@ namespace Masker
                             continue;
                         }
 
-                        // CLEAR call (clear command line interface) [clear]
-                        if (currentLine.ToLower() == "clear")
+                        // GOTOIF call (conditional jump) [gotoif <value> <value> <checkpoint>]
+                        if (currentLine.ToLower() == "gotoif") abort($"GOTOIF must be passed 3 arguments! (Line Number: {errorLineNumber})");
+                        if (currentLine.Length >= 7 && currentLine.Substring(0, 7).ToLower() == "gotoif ")
                         {
-                            Clear();
+                            string argus = currentLine.Substring(6).Trim();
+                            string[] argus2 = argus.Split(' ');
+                            string value1;
+                            string value2;
+                            string checkpointName = argus2[^1];
+                            if (argus[0] == '"')
+                            {
+                                value2 = argus2[^2];
+                                value1 = argus.Substring(0, argus.Length - (value2.Length + 1 + checkpointName.Length)).Trim();
+                            }
+                            else
+                            {
+                                value1 = argus.Substring(0, argus.IndexOf(' ')).Trim();
+                                value2 = argus.Substring(argus.IndexOf(' '), argus.Length - (checkpointName.Length + 1 + value1.Length)).Trim();
+                            }
+                            if (value1.removeStringAbort(true) != "no") value1 = value1.removeStringAbort();
+                            else value1 = getValueOfVariable(value1);
+                            if (value2.removeStringAbort(true) != "no") value2 = value2.removeStringAbort();
+                            else value2 = getValueOfVariable(value2);
+
+                            if (value1 == value2)
+                            {
+                                if (!jumpCheckpointNames.Contains(checkpointName)) abort($"Checkpoint doesn't exist! " +
+                                    $"(Line Number: {errorLineNumber}, Value: [{checkpointName}])");
+                                float numberToJumpTo = jumpLineNumbers[jumpCheckpointNames.IndexOf(checkpointName)];
+                                currentLine = code[(int)numberToJumpTo - 1];
+                                currentLineNumber = numberToJumpTo - 1;
+                            }
                             continue;
                         }
 
@@ -159,6 +191,17 @@ namespace Masker
                             continue;
                         }
 
+                        // SLEEPX call (sleep program for provided amount of milliseconds) [sleepx <milliseconds>]
+                        if (currentLine.ToLower() == "sleepx") abort($"SLEEPX must be passed 1 arguments! (Line Number: {errorLineNumber})");
+                        if (currentLine.Length >= 7 && currentLine.Substring(0, 7).ToLower() == "sleepx ")
+                        {
+                            int actualNumber;
+                            if (!int.TryParse(currentLine.Substring(6).Trim(), out actualNumber)) abort($"Value is not number! (INT type!) (Line Number: {errorLineNumber})");
+                            System.Threading.Thread.Sleep(actualNumber);
+                            continue;
+                        }
+                        #endregion Program Order
+                        #region Graphics
                         // COLOR call (change color of text) [color <color name>]
                         if (currentLine.Trim().ToLower() == "color") abort($"COLOR must be passed 1 argument! (Line Number: {errorLineNumber})");
                         if (currentLine.Length >= 6 && currentLine.Substring(0, 6).ToLower() == "color ")
@@ -174,16 +217,6 @@ namespace Masker
                         {
                             string colorName = currentLine.Substring(6).Trim().ToLower();
                             BackgroundColor = stringColor(colorName);
-                            continue;
-                        }
-
-                        // INPUT call (getting input) [input <VARIABLE>]
-                        if (currentLine.ToLower() == "input") abort($"INPUT must be passed 1 argument! (Line Number: {errorLineNumber})");
-                        if (currentLine.Length >= 6 && currentLine.Substring(0, 6).ToLower() == "input ")
-                        {
-                            string variableName = currentLine.Substring(6).Trim();
-                            string userInput = ReadLine();
-                            setValueOfVariable(variableName, userInput);
                             continue;
                         }
 
@@ -223,80 +256,64 @@ namespace Masker
                             continue;
                         }
 
-                        // GOTOIF call (conditional jump) [gotoif <value> <value> <checkpoint>]
-                        if (currentLine.ToLower() == "gotoif") abort($"GOTOIF must be passed 3 arguments! (Line Number: {errorLineNumber})");
-                        if (currentLine.Length >= 7 && currentLine.Substring(0, 7).ToLower() == "gotoif ")
+                        // CLEAR call (clear command line interface) [clear]
+                        if (currentLine.ToLower() == "clear")
                         {
-                            string argus = currentLine.Substring(6).Trim();
-                            string[] argus2 = argus.Split(' ');
-                            string value1;
-                            string value2;
-                            string checkpointName = argus2[^1];
-                            if (argus[0] == '"')
-                            {
-                                value2 = argus2[^2];
-                                value1 = argus.Substring(0, argus.Length - (value2.Length + 1 + checkpointName.Length)).Trim();
-                            } else
-                            {
-                                value1 = argus.Substring(0, argus.IndexOf(' ')).Trim();
-                                value2 = argus.Substring(argus.IndexOf(' '), argus.Length - (checkpointName.Length + 1 + value1.Length)).Trim();
-                            }
-                            if (value1.removeStringAbort(true) != "no") value1 = value1.removeStringAbort();
-                            else value1 = getValueOfVariable(value1);
-                            if (value2.removeStringAbort(true) != "no") value2 = value2.removeStringAbort();
-                            else value2 = getValueOfVariable(value2);
-
-                            if (value1 == value2)
-                            {
-                                if (!jumpCheckpointNames.Contains(checkpointName)) abort($"Checkpoint doesn't exist! " +
-                                    $"(Line Number: {errorLineNumber}, Value: [{checkpointName}])");
-                                float numberToJumpTo = jumpLineNumbers[jumpCheckpointNames.IndexOf(checkpointName)];
-                                currentLine = code[(int)numberToJumpTo - 1];
-                                currentLineNumber = numberToJumpTo - 1;
-                            }
+                            Clear();
                             continue;
                         }
-
-                        // SLEEPX call (sleep program for provided amount of milliseconds) [sleepx <milliseconds>]
-                        if (currentLine.ToLower() == "sleepx") abort($"SLEEPX must be passed 1 arguments! (Line Number: {errorLineNumber})");
-                        if (currentLine.Length >= 7 && currentLine.Substring(0, 7).ToLower() == "sleepx ")
+                        #endregion Graphics
+                        #region Input
+                        // INPUT call (getting input) [input <VARIABLE>]
+                        if (currentLine.ToLower() == "input") abort($"INPUT must be passed 1 argument! (Line Number: {errorLineNumber})");
+                        if (currentLine.Length >= 6 && currentLine.Substring(0, 6).ToLower() == "input ")
                         {
-                            int actualNumber;
-                            if (!int.TryParse(currentLine.Substring(6).Trim(), out actualNumber)) abort($"Value is not number! (INT type!) (Line Number: {errorLineNumber})");
-                            System.Threading.Thread.Sleep(actualNumber);
+                            string variableName = currentLine.Substring(6).Trim();
+                            string userInput = ReadLine();
+                            setValueOfVariable(variableName, userInput);
                             continue;
                         }
 
                         // XINPUT call (getting input that is lowercased) [xinput <VARIABLE>]
                         if (currentLine.ToLower() == "xinput") abort($"XINPUT must be passed 1 argument! (Line Number: {errorLineNumber})");
                         if (currentLine.Length >= 7 && currentLine.Substring(0, 7).ToLower() == "xinput ")
-                        { 
+                        {
                             string variableName = currentLine.Substring(7).Trim();
                             string userInput = ReadLine().ToLower();
                             setValueOfVariable(variableName, userInput);
                             continue;
                         }
 
-                        // XXINPUT call (getting input that is uppercased) [xxinput <VARIABLE>]
-                        if (currentLine.ToLower() == "xxinput") abort($"XXINPUT must be passed 1 argument! (Line Number: {errorLineNumber})");
-                        if (currentLine.Length >= 8 && currentLine.Substring(0, 8).ToLower() == "xxinput ")
+                        // READCHAR call (read one char to variable) [readchar <variable name>]
+                        if (currentLine.ToLower() == "readchar") abort($"READCHAR must be given atleast 1 argument! (Line Number: {errorLineNumber})");
+                        if (currentLine.Length >= 9 && currentLine.Substring(0, 9).ToLower() == "readchar ")
                         {
-                            string variableName = currentLine.Substring(8).Trim();
-                            string userInput = ReadLine().ToUpper();
-                            setValueOfVariable(variableName, userInput);
+                            while (!KeyAvailable) { }
+                            string input = ReadKey(true).Key.ToString();
+                            setValueOfVariable(currentLine.Substring(8).Trim(), input);
                             continue;
                         }
+                        // XREADCHAR call (read one char to variable converted to lowercase) [xreadchar <variable name>]
+                        if (currentLine.ToLower() == "xreadchar") abort($"XREADCHAR must be given atleast 1 argument! (Line Number: {errorLineNumber})");
+                        if (currentLine.Length >= 10 && currentLine.Substring(0, 10).ToLower() == "xreadchar ")
+                        {
+                            while (!KeyAvailable) { }
+                            string input = ReadKey(true).Key.ToString();
+                            setValueOfVariable(currentLine.Substring(8).Trim(), input);
+                            continue;
+                        }
+
+                        #endregion Input
 
                         // Invalid command handler
                         if (currentLine[0].ToString() != "") abort($"Invalid command! (Line Number: {errorLineNumber}, Value: [{currentLine}])");
 
                     }
                 }
-                else
-                {
-                    abort("Masker: Please provide a file to run. (arguments)", false);
-                }
+                // Abort if no file provided in args
+                else abort("Masker: Please provide a file to run. (arguments)", false);
             }
+            #region Fatal Error Handler
             catch (Exception err)
             {
                 if (err is IOException) abort("Something changed about the running codefile! (Caught: IOException)");
@@ -310,29 +327,11 @@ namespace Masker
                 "Provide this message along with the text shown above.\n" +
                 $"(Line Number: [{errorLineNumber}], Current Line In File: [{currentLine}])");
             }
+            #endregion Fatal Error Handler
         }
-
-        public static ConsoleColor stringColor(string color) {
-            switch (color) {
-                case "blue": return Blue;
-                case "red": return Red;
-                case "magenta": return Magenta;
-                case "yellow": return Yellow;
-                case "cyan": return Cyan;
-                case "gray": return Gray;
-                case "green": return Green;
-                case "darkred": return DarkRed;
-                case "darkblue": return DarkBlue;
-                case "darkgreen": return DarkGreen;
-                case "darkyellow": return DarkYellow;
-                case "darkgray": return DarkGray;
-                case "darkcyan": return DarkCyan;
-                case "darkmagenta": return DarkMagenta;
-                case "black": return Black;
-                default: return White; // White if invalid color specified
-            }
-        }
-
+        // Program Functions
+        #region Variable Functions
+        // These function's purposes are in the names.
         public static string getValueOfVariable(string variableName) // Get value of created variable
         {
             if (!variableExists(variableName)) abort($"Variable does not exist. (Line Number: {errorLineNumber}, Value: {variableName})");
@@ -373,7 +372,9 @@ namespace Masker
                 return 0;
             }
         }
-
+        #endregion Variable Functions
+        #region Error Handler Functions
+        // Abort with error message
         public static void abort(string errMessage, bool error = true, int exitCode = 0) // Close program due to error
         {
             if (error)
@@ -390,6 +391,7 @@ namespace Masker
             Environment.Exit(exitCode);
         }
 
+        // Warn user of problem
         public static void warn(string warningMessage) // Warn without closing program
         {
             ConsoleColor backupColor = ForegroundColor;
@@ -399,22 +401,47 @@ namespace Masker
             WriteLine(warningMessage);
             ForegroundColor = backupColor;
         }
-
+        #endregion Error Handler Functions
+        #region Misc Functions
+        // Function to remove quotation marks from strings
         public static string removeStringAbort(this string stringToCheck, bool justCheck = false)
         {
             stringToCheck = stringToCheck.Trim();
             if (stringToCheck[0] == '"' && stringToCheck[stringToCheck.Length - 1] == '"')
             {
-                // If it does have quotation marks:
                 if (!justCheck) return stringToCheck.Substring(1, stringToCheck.Length - 2);
                 return "yes";
             }
             else
             {
-                // If it doesn't:
                 if (!justCheck) abort($"String value does not have quotation marks. (Line Number: {errorLineNumber}, Value: [{stringToCheck}])");
                 return "no";
             }
         }
+
+        // Get color from string
+        public static ConsoleColor stringColor(string color)
+        {
+            switch (color)
+            {
+                case "blue": return Blue;
+                case "red": return Red;
+                case "magenta": return Magenta;
+                case "yellow": return Yellow;
+                case "cyan": return Cyan;
+                case "gray": return Gray;
+                case "green": return Green;
+                case "darkred": return DarkRed;
+                case "darkblue": return DarkBlue;
+                case "darkgreen": return DarkGreen;
+                case "darkyellow": return DarkYellow;
+                case "darkgray": return DarkGray;
+                case "darkcyan": return DarkCyan;
+                case "darkmagenta": return DarkMagenta;
+                case "black": return Black;
+                default: return White; // White if invalid color specified
+            }
+        }
+#endregion Misc Functions
     }
 }
