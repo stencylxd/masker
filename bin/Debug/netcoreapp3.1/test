@@ -1,4 +1,0 @@
-var test
-clear
-readchar test 
-print test
