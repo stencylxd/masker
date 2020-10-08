@@ -244,7 +244,7 @@ namespace Masker
                             warn($"Useless xprint. (Line Number: {errorLineNumber})");
                             continue;
                         }
-                        if (currentLine.Length >= 7 && currentLine.Substring(0, 6).ToLower() == "xprint ")
+                        if (currentLine.Length >= 7 && currentLine.Substring(0, 7).ToLower() == "xprint ")
                         {
                             string stringToPrint;
 
