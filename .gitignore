@@ -1,0 +1,6 @@
+dotnet-publish.bat
+/bin
+/obj
+/Properties
+*.sln
+*.user
