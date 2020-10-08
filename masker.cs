@@ -316,6 +316,7 @@ namespace Masker
             #region Fatal Error Handler
             catch (Exception err)
             {
+                ResetColor();
                 if (err is IOException) abort("Something changed about the running codefile! (Caught: IOException)");
                 if (err is PathTooLongException) abort("Please enter a shorter file path. (Caught: PathTooLongException");
                 if (err is NotSupportedException) abort("The file you gave cannot be read by Masker. (Caught: NotSupportedException)");
@@ -377,6 +378,7 @@ namespace Masker
         // Abort with error message
         public static void abort(string errMessage, bool error = true, int exitCode = 0) // Close program due to error
         {
+            ResetColor();
             if (error)
             {
                 ForegroundColor = DarkRed;
@@ -394,12 +396,15 @@ namespace Masker
         // Warn user of problem
         public static void warn(string warningMessage) // Warn without closing program
         {
-            ConsoleColor backupColor = ForegroundColor;
+            ConsoleColor backupColorF = ForegroundColor;
+            ConsoleColor backupcolorB = BackgroundColor;
+            ResetColor();
             ForegroundColor = Red;
             Write("\n\nWARNING: ");
             ResetColor();
             WriteLine(warningMessage);
-            ForegroundColor = backupColor;
+            ForegroundColor = backupColorF;
+            BackgroundColor = backupColorB
         }
         #endregion Error Handler Functions
         #region Misc Functions
