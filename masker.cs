@@ -244,7 +244,7 @@ namespace Masker
                             warn($"Useless xprint. (Line Number: {errorLineNumber})");
                             continue;
                         }
-                        if (currentLine.Length >= 5 && currentLine.Substring(0, 6).ToLower() == "xprint")
+                        if (currentLine.Length >= 7 && currentLine.Substring(0, 6).ToLower() == "xprint ")
                         {
                             string stringToPrint;
 
@@ -293,16 +293,6 @@ namespace Masker
                             setValueOfVariable(currentLine.Substring(8).Trim(), input);
                             continue;
                         }
-                        // XREADCHAR call (read one char to variable converted to lowercase) [xreadchar <variable name>]
-                        if (currentLine.ToLower() == "xreadchar") abort($"XREADCHAR must be given atleast 1 argument! (Line Number: {errorLineNumber})");
-                        if (currentLine.Length >= 10 && currentLine.Substring(0, 10).ToLower() == "xreadchar ")
-                        {
-                            while (!KeyAvailable) { }
-                            string input = ReadKey(true).Key.ToString();
-                            setValueOfVariable(currentLine.Substring(8).Trim(), input);
-                            continue;
-                        }
-
                         #endregion Input
 
                         // Invalid command handler
@@ -397,14 +387,14 @@ namespace Masker
         public static void warn(string warningMessage) // Warn without closing program
         {
             ConsoleColor backupColorF = ForegroundColor;
-            ConsoleColor backupcolorB = BackgroundColor;
+            ConsoleColor backupColorB = BackgroundColor;
             ResetColor();
             ForegroundColor = Red;
             Write("\n\nWARNING: ");
             ResetColor();
             WriteLine(warningMessage);
             ForegroundColor = backupColorF;
-            BackgroundColor = backupColorB
+            BackgroundColor = backupColorB;
         }
         #endregion Error Handler Functions
         #region Misc Functions

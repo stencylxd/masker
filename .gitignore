@@ -1,6 +1,7 @@
+
+.vs/
 dotnet-publish.bat
-/bin
-/obj
-/Properties
-*.sln
-*.user
+bin/
+obj/
+Properties/
+MaskerEPL.sln
