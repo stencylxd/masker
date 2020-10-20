@@ -1,0 +1,38 @@
+// MacOS Fake Catalina - stencylxd
+
+var user_input
+var apples_eaten "0"
+cp reset
+print "MacOS Catalina Shell | APPLE - 1987=2020"
+print "TYPE HELP TO VIEW COMMANDS"
+
+cp input
+xprint "> "
+xinput user_input
+print
+gotoif user_input "help" commands_list
+gotoif user_input "exit" shutdown_comp
+gotoif user_input "eat" eat_apple_now
+color red
+print "INVALID COMMAND"
+color res
+goto input
+
+cp commands_list
+print "help - VIEW THIS LIST"
+print "exit - SHUTDOWN YOUR COMPUTER"
+print "eat - EAT APPLES"
+goto input 
+
+cp shutdown_comp
+clear
+readchar user_input
+goto reset
+
+cp eat_apple_now
+add apples_eaten 1
+xprint "YOU HAVE EATEN "
+xprint apples_eaten
+print " APPLES."
+goto input
+

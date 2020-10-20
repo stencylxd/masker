@@ -1,0 +1,34 @@
+// READCHAR selection menu - stencylxd
+
+var user_input
+var select "1"
+cp frame
+clear
+print "use arrow keys to select and enter to confirm"
+xprint "Current Selection: "
+print select
+print 
+print "1: EXAMPLE 1"
+print "2: EXAMPLE 2"
+print "3: EXAMPLE 3"
+readchar user_input
+gotoif user_input "UpArrow" increase
+gotoif user_input "DownArrow" decrease
+gotoif user_input "Enter" confirm
+
+
+cp increase
+add select 1
+gotoif select "4" decrease
+goto frame
+
+cp decrease
+add select -1
+gotoif select "0" increase
+goto frame
+
+cp confirm
+clear
+xprint "Your selection: "
+print select
+exit
