@@ -1,19 +1,19 @@
 ﻿// Masker by stencylxd, full codefile
 
-#region Deps
+#region Dependencies
 using System;
 using static System.Console;
 using System.IO;
 using System.Collections.Generic;
 using static System.ConsoleColor;
 using static System.String;
-#endregion Deps
+#endregion Dependencies
 
 namespace Masker
 {
     public static class MaskerEPL
     {
-        #region Variable Definitions
+        #region Variables
         public static List<string> variableNames = new List<string> { };
         public static List<string> variableValues = new List<string> { };
         public static float currentLineNumber = 0;
@@ -25,7 +25,7 @@ namespace Masker
         public static float numberToJumpTo;
         public static string jumpNameToLookFor;
         public static string[] code = new string[] { };
-        #endregion Variable Definitions
+        #endregion Variables
         public static void Main(string[] args)
         {
             try

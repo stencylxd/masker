@@ -43,6 +43,9 @@ Basic Commands:
 // exit command (will exit program)
 exit
 
+// clear command (clear all text off of screen)
+clear
+
 // color command (will set foreground color of text being printed)
 color <color name>
 // to set background color:
